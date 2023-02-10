@@ -1,0 +1,31 @@
+body{
+    background-color: blue;
+    font-family: Arial;
+}
+#canvas{
+    height: 100%;
+}
+canvas{
+    background-color: white;
+}
+
+.box {
+    width: 100px;
+    height: 100px;
+    background-color: transparent;
+    position: absolute;
+   
+    text-align: center;
+    border:solid 2px grey;
+    z-index: 5;
+  }
+#prompter{
+    z-index: 10;
+    border:solid 2px red;
+}
+#sid{
+    position: fixed;
+    right:0px;
+    background-color: white;
+    min-width: 200px;
+}
