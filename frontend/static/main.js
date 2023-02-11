@@ -1,17 +1,26 @@
 const canvasContainer = document.getElementById('canvas');
 
-const canvasWidth = 512;
-const canvasHeight = 512;
+const canvasWidth = 3500;
+const canvasHeight = 2500;
 
 const canvas = document.createElement('canvas');
+const context = canvas.getContext('2d');
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 
 canvasContainer.appendChild(canvas);
 var socket;
+var loadedimages={};
 
 $(document).ready(function() {
+
+    //init scale
+    $("#main").panZoom();
+   
+
+   
     $("#prompter").draggable({
+        containment:"canvas",
         stop: function() {
             boxChange();
           },
@@ -19,11 +28,20 @@ $(document).ready(function() {
             boxChange();
         }  
     });
+  
 
     $("#prompt").on("input", function() {
         boxChange();
 
      });
+
+    $("#sendprompt").on("click",function(){
+        let box=$(this).closest(".box");
+        let pos=box.position();
+        let prompt=$("#prompt").val();
+        let newprompt={"prompt":prompt,"x":pos.left,"y":pos.top,"sid":window.sid}
+        socket.emit("prompt", newprompt);
+    });
 
 
     //SOCKET:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -32,6 +50,17 @@ $(document).ready(function() {
         console.log("connected");
         boxChange("joined");
        
+    });
+    socket.on('newimage', function(images) {
+        updateImages(images);
+    });
+
+    socket.on('promptready', function(data) {
+        //finished prompting
+        sid=data["sid"]
+        if (sid==window.sid){
+            $("#prompt").text("");
+        }
     });
     socket.on('status', function(data) {
         
@@ -62,6 +91,25 @@ $(document).ready(function() {
         $("#others").append('<div id="'+sid+'" class="box otherbox" style="left:'+box[0]+';top:'+box[1]+'"><div class="prompt"></div></div>');
     }
   }
+
+    function updateImages(images){
+        images.forEach(img =>{
+            console.log(img);
+            if (loadedimages[img["imguri"]] === undefined){
+                loadedimages[img["imguri"]]=true;
+                putinCanvas(img);
+            }   
+    });
+    }
+
+    function putinCanvas(newimage){
+        console.log(newimage)
+        base_image = new Image();
+        base_image.src = newimage["imguri"];
+        base_image.onload = function(){
+            context.drawImage(base_image, newimage["x"], newimage["y"]);
+        }
+    }
 
   function manageOthers(boxes){
     console.log(boxes);
@@ -102,3 +150,5 @@ $(document).ready(function() {
     console.log( client_socket);
     }
   }
+
+ 

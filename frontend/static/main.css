@@ -1,17 +1,25 @@
 body{
     background-color: blue;
     font-family: Arial;
+    margin: 0px;
+}
+#main,#canvas{
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
 #canvas{
     height: 100%;
 }
 canvas{
     background-color: white;
+    
 }
 
 .box {
-    width: 100px;
-    height: 100px;
+    width: 512px;
+    height: 512px;
     background-color: transparent;
     position: absolute;
    
@@ -22,6 +30,7 @@ canvas{
 #prompter{
     z-index: 10;
     border:solid 2px red;
+    transform-origin: 0 0;
 }
 #sid{
     position: fixed;

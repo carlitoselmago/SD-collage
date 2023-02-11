@@ -6,17 +6,20 @@
 
 <body>
     <div id="sid"></div>
-    <div id="prompter" class="box">
-        <div>Drag me</div>
-        <input id="prompt" >
-        <button>Send</button>
+
+    <div id="main">
+        <div id="prompter" class="box">
+            <div>Drag me</div>
+            <input id="prompt" >
+            <button id="sendprompt">Send</button>
+        </div>
+
+        <div id="others">
+
+        </div>
+        <div id="canvas"></div>
     </div>
-
-    <div id="others">
-
-    </div>
-
-    <div id="canvas"></div>
+    
     <div id="users"></div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
@@ -24,6 +27,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/draggable/1.0.0-beta.12/draggable.min.js"
         integrity="sha512-VTqyB/kLQGaTnF5kYAgeEFo8fwqdlAGNUQeoQi4EOmmBYTEQ/XrYC7lnzCvBBp1PR+1ODEQiT075oeUdPeFHwA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='panzoom_jquery.js') }}"></script>    
     <script type="text/javascript" src="{{ url_for('static',filename='main.js') }}"></script>
 </body>
 
