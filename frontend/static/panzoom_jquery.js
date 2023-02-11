@@ -5,6 +5,7 @@
       scale: 1.1,
       zoomIn: true,
       zoomOut: true,
+      onstop: function() {}
     }, options);
 
     var $element = $(this);
@@ -12,13 +13,15 @@
     var $zoomIn = settings.zoomIn;
     var $zoomOut = settings.zoomOut;
     var $scale = settings.scale;
-    var currentScale = 1;
+    var currentScale = 0.3;
     var currentTranslate = { x: 0, y: 0 };
 
+  
+    
     $element.css({
       'position': 'absolute',
       'cursor': 'move',
-      'transform': 'translate(0, 0) scale(1)'
+      'transform': 'translate(0, 0) scale('+currentScale+')'
     });
 
     var startX, startY;
@@ -38,13 +41,12 @@
             'transform': 'translate(' + currentTranslate.x + 'px, ' + currentTranslate.y + 'px) scale(' + currentScale + ')'
           });
         });
-
-     
       }
     });
 
     $parent.on('mouseup', function () {
       $parent.off('mousemove');
+      settings.onstop.call($parent);
     });
 
     $parent.on('mousewheel', function (e) {

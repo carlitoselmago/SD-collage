@@ -72,6 +72,7 @@ def prompt(message):
     x=message["x"]
     y=message["y"]
     sid=message["sid"]
+    print("SID",sid,"=======================================================")
     print("new prompt",message)
     imageid=IG.generateImage(p,x=x,y=y,room=room)
     print("new image",imageid)

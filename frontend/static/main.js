@@ -1,3 +1,5 @@
+window.sid=false;
+
 const canvasContainer = document.getElementById('canvas');
 
 const canvasWidth = 3500;
@@ -15,14 +17,22 @@ canvasContainer.appendChild(canvas);
 var socket;
 var loadedimages={};
 
+
+
 $(document).ready(function() {
 
+    $("#prompt").focus();
+
     //init scale
-    $("#main").panZoom();
+    $("#main").panZoom({
+        onstop: function() {
+            $("#prompt").focus();
+          }});
    
     $("#prompter").draggable({
         onstop: function() {
             boxChange();
+            $("#prompt").focus();
           },
         onmove:function(){
             boxChange();
@@ -71,8 +81,11 @@ $(document).ready(function() {
 
     socket.on('promptready', function(data) {
         //finished prompting
-        sid=data["sid"]
-        if (sid==window.sid){
+        sid=data["sid"];
+        
+        
+        if (sid===$("#sid").text()){
+            console.log("its my prompt!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             $("#prompt").val("");
         }
     });
@@ -80,8 +93,10 @@ $(document).ready(function() {
         
     });
     socket.on('yoursid', function(data) {
-        window.sid=data["sid"];
-        $("#sid").text(data["sid"]);
+        if (!window.sid){
+            window.sid=data["sid"];
+            $("#sid").text(data["sid"]);
+        }
     });
     
     socket.on('update', function(data) {
@@ -117,7 +132,6 @@ $(document).ready(function() {
     }
 
     function putinCanvas(newimage){
-        console.log(newimage)
         base_image = new Image();
         base_image.src = newimage["imguri"];
         base_image.onload = function(){
