@@ -10,8 +10,7 @@
     <div id="main">
         <div id="prompter" class="box">
             <div>Drag me</div>
-            <input id="prompt" >
-            <button id="sendprompt">Send</button>
+           
         </div>
 
         <div id="others">
@@ -21,12 +20,19 @@
     </div>
     
     <div id="users"></div>
+
+    <div id="inputs">
+        <form id="promptform">
+        <input id="prompt" >
+        <button id="sendprompt">Send</button>
+    </form>
+
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/draggable/1.0.0-beta.12/draggable.min.js"
-        integrity="sha512-VTqyB/kLQGaTnF5kYAgeEFo8fwqdlAGNUQeoQi4EOmmBYTEQ/XrYC7lnzCvBBp1PR+1ODEQiT075oeUdPeFHwA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        <script type="text/javascript" src="{{ url_for('static',filename='draggable_jquery.js') }}"></script>  
     <script type="text/javascript" src="{{ url_for('static',filename='panzoom_jquery.js') }}"></script>    
     <script type="text/javascript" src="{{ url_for('static',filename='main.js') }}"></script>
 </body>

@@ -1,7 +1,14 @@
+html{
+    overflow: hidden;
+}
 body{
     background-color: blue;
     font-family: Arial;
     margin: 0px;
+}
+#main{
+    transform-origin: 0 0;
+
 }
 #main,#canvas{
     overflow: hidden;
@@ -37,4 +44,16 @@ canvas{
     right:0px;
     background-color: white;
     min-width: 200px;
+}
+#inputs{
+    background-color: black;
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+}
+#inputs #prompt{
+    border:none;
+    font-size: 18px;
 }

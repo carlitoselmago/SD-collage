@@ -8,48 +8,39 @@
     }, options);
 
     var $element = $(this);
-    var $box=$("#users");
     var $parent = $element.parent();
     var $zoomIn = settings.zoomIn;
     var $zoomOut = settings.zoomOut;
     var $scale = settings.scale;
+    var currentScale = 1;
+    var currentTranslate = { x: 0, y: 0 };
 
     $element.css({
       'position': 'absolute',
       'cursor': 'move',
-     // 'width':800,
-      'top':100,
-      'left':100
+      'transform': 'translate(0, 0) scale(1)'
     });
 
-    $box.css({
-      'position': 'absolute',
-     });
-
-    var startX, startY, startLeft, startTop;
-    var bstartLeft, bstartTop;
+    var startX, startY;
 
     $parent.on('mousedown', function (e) {
-      startX = e.pageX;
-      startY = e.pageY;
-      startLeft = parseInt($element.css('left'));
-      startTop = parseInt($element.css('top'));
+      console.log()
+      if (e.target!==$("#prompter")[0]){
+        startX = e.pageX;
+        startY = e.pageY;
 
-      bstartLeft = parseInt($box.css('left'));
-      bstartTop = parseInt($box.css('top'));
-
-      $parent.on('mousemove', function (e) {
-        $element.css({
-          'left': startLeft + e.pageX - startX,
-          'top': startTop + e.pageY - startY
+        $parent.on('mousemove', function (e) {
+          currentTranslate.x += e.pageX - startX;
+          currentTranslate.y += e.pageY - startY;
+          startX = e.pageX;
+          startY = e.pageY;
+          $element.css({
+            'transform': 'translate(' + currentTranslate.x + 'px, ' + currentTranslate.y + 'px) scale(' + currentScale + ')'
+          });
         });
-        $box.css({
-          'left': bstartLeft + e.pageX - startX,
-          'top': bstartTop + e.pageY - startY
-        });
-      });
 
-      return false;
+     
+      }
     });
 
     $parent.on('mouseup', function () {
@@ -57,31 +48,13 @@
     });
 
     $parent.on('mousewheel', function (e) {
-      if (e.originalEvent.wheelDelta / 120 > 0 && $zoomIn) {
+      var zoom = e.originalEvent.wheelDelta / 120 > 0 ? $scale : 1 / $scale;
+      if ((zoom > 1 && $zoomIn) || (zoom < 1 && $zoomOut)) {
+        currentScale *= zoom;
+        currentTranslate.x = currentTranslate.x * zoom + (1 - zoom) * e.pageX;
+        currentTranslate.y = currentTranslate.y * zoom + (1 - zoom) * e.pageY;
         $element.css({
-          'width': $element.width() * $scale,
-          'height': $element.height() * $scale,
-          'left': $element.position().left - ($element.width() * ($scale - 1)) / 2,
-          'top': $element.position().top - ($element.height() * ($scale - 1)) / 2
-        });
-        $box.css({
-          'width': $box.width() * $scale,
-          'height': $box.height() * $scale,
-          'left': $box.position().left - ($box.width() * ($scale - 1)) / 2,
-          'top': $box.position().top - ($box.height() * ($scale - 1)) / 2
-        });
-      } else if (e.originalEvent.wheelDelta / 120 < 0 && $zoomOut) {
-        $element.css({
-          'width': $element.width() / $scale,
-          'height': $element.height() / $scale,
-          'left': $element.position().left + ($element.width() * ($scale - 1)) / 2,
-          'top': $element.position().top + ($element.height() * ($scale - 1)) / 2
-        });
-         $box.css({
-          'width': $box.width() / $scale,
-          'height': $box.height() / $scale,
-          'left': $box.position().left + ($box.width() * ($scale - 1)) / 2,
-          'top':$box.position().top + ($box.height() * ($scale - 1)) / 2
+          'transform': 'translate(' + currentTranslate.x + 'px, ' + currentTranslate.y + 'px) scale(' + currentScale + ')'
         });
       }
     });

@@ -8,6 +8,9 @@ const context = canvas.getContext('2d');
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 
+$("#main").css("width",canvasWidth+"px");
+$("#main").css("height",canvasHeight+"px");
+
 canvasContainer.appendChild(canvas);
 var socket;
 var loadedimages={};
@@ -17,8 +20,15 @@ $(document).ready(function() {
     //init scale
     $("#main").panZoom();
    
-
-   
+    $("#prompter").draggable({
+        onstop: function() {
+            boxChange();
+          },
+        onmove:function(){
+            boxChange();
+        }  
+    });
+   /*
     $("#prompter").draggable({
         containment:"canvas",
         stop: function() {
@@ -28,20 +38,24 @@ $(document).ready(function() {
             boxChange();
         }  
     });
-  
+  */
 
     $("#prompt").on("input", function() {
         boxChange();
 
      });
-
-    $("#sendprompt").on("click",function(){
-        let box=$(this).closest(".box");
-        let pos=box.position();
+    $("#promptform").submit(function(e){
+        e.preventDefault();
+        let box=$("#prompter");
+        let target=$("#prompter");
+        let x=parseInt(target.css("left"));
+        let y=parseInt(target.css("top"));
         let prompt=$("#prompt").val();
-        let newprompt={"prompt":prompt,"x":pos.left,"y":pos.top,"sid":window.sid}
+        let newprompt={"prompt":prompt,"x":x,"y":y,"sid":window.sid}
         socket.emit("prompt", newprompt);
+        return false;
     });
+ 
 
 
     //SOCKET:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -59,7 +73,7 @@ $(document).ready(function() {
         //finished prompting
         sid=data["sid"]
         if (sid==window.sid){
-            $("#prompt").text("");
+            $("#prompt").val("");
         }
     });
     socket.on('status', function(data) {
@@ -94,7 +108,7 @@ $(document).ready(function() {
 
     function updateImages(images){
         images.forEach(img =>{
-            console.log(img);
+            
             if (loadedimages[img["imguri"]] === undefined){
                 loadedimages[img["imguri"]]=true;
                 putinCanvas(img);
@@ -107,7 +121,7 @@ $(document).ready(function() {
         base_image = new Image();
         base_image.src = newimage["imguri"];
         base_image.onload = function(){
-            context.drawImage(base_image, newimage["x"], newimage["y"]);
+            context.drawImage(this, newimage["x"], newimage["y"]);
         }
     }
 
@@ -138,8 +152,10 @@ $(document).ready(function() {
 
   function boxChange(label="boxchange"){
     let text=($("#prompt").val()); 
-    let pos=$("#prompter").position();
-    socket.emit(label, {"box":[pos.left,pos.top],"prompt":text});
+    let target=$("#prompter");
+    let x=target.css("left");
+    let y=target.css("top");
+    socket.emit(label, {"box":[x,y],"prompt":text});
   }
 
   function getClients(roomId="room"){

@@ -1,6 +1,6 @@
 from flask import Flask, render_template,session,request,send_from_directory
 from flask_socketio import SocketIO,emit, join_room, leave_room
-import os
+import glob,os
 
 TEMPLATE_DIR = os.path.abspath('frontend')
 STATIC_DIR = os.path.abspath('frontend/static')
@@ -16,6 +16,14 @@ IG=imageGenerator(imagesfolder)
 
 users={}
 images=[]
+
+#load images from folder (doesn't take yet room into account)
+print("LOADING IMAGES!")
+for file in glob.glob(imagesfolder+"*.jpg"):
+    img=file.split("_")
+    newimage={"imguri":file,"x":img[1],"y":img[2].split(".")[0]} 
+    images.append(newimage)
+print(images)
 
 @app.route('/')
 def main():
@@ -50,6 +58,7 @@ def joined(message):
     print("")
     emit("yoursid",{"sid":sid})
     usersExceptMe(users,sid,room)
+    updateImages()
     #emit('status', users, room=room)
 
 @socketio.on('ok')
@@ -58,17 +67,18 @@ def recieved():
 
 @socketio.on('prompt')
 def prompt(message):
+    room = session.get('room')
     p=message["prompt"]
     x=message["x"]
     y=message["y"]
     sid=message["sid"]
     print("new prompt",message)
-    imageid=IG.generateImage(p)
+    imageid=IG.generateImage(p,x=x,y=y,room=room)
     print("new image",imageid)
     print("")
-    newimage={"imguri":imagesfolder+imageid+".png","x":x,"y":y}
+    newimage={"imguri":imagesfolder+imageid+".jpg","x":x,"y":y}
     images.append(newimage)
-    room = session.get('room')
+    
     emit("promptready",{"sid":sid},room=room)
     updateImages()
     
@@ -82,7 +92,7 @@ def text(message):
     room = session.get('room')
     
     move={"sid":sid,"box":message}
-    print("boxmove",move)
+   
     users[sid]["box"]=message["box"]
     users[sid]["prompt"]=message["prompt"]
     usersExceptMe(users,sid,room)
