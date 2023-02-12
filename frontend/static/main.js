@@ -2,24 +2,27 @@ window.sid=false;
 
 const canvasContainer = document.getElementById('canvas');
 
-const canvasWidth = 3500;
-const canvasHeight = 2500;
+const canvasWidth = 2160;
+const canvasHeight = 3054;
 
 const canvas = document.createElement('canvas');
-const context = canvas.getContext('2d');
+const context = canvas.getContext('2d',{ willReadFrequently: true });
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
+canvas.setAttribute("id","maincanvas");
 
 $("#main").css("width",canvasWidth+"px");
 $("#main").css("height",canvasHeight+"px");
 
 canvasContainer.appendChild(canvas);
+
 var socket;
 var loadedimages={};
 
-
-
 $(document).ready(function() {
+
+    const minicanvas=document.getElementById('minicanvas');
+    const minicontext = minicanvas.getContext('2d',{ willReadFrequently: true });
 
     $("#prompt").focus();
 
@@ -38,17 +41,6 @@ $(document).ready(function() {
             boxChange();
         }  
     });
-   /*
-    $("#prompter").draggable({
-        containment:"canvas",
-        stop: function() {
-            boxChange();
-          },
-        drag:function(){
-            boxChange();
-        }  
-    });
-  */
 
     $("#prompt").on("input", function() {
         boxChange();
@@ -61,8 +53,20 @@ $(document).ready(function() {
         let x=parseInt(target.css("left"));
         let y=parseInt(target.css("top"));
         let prompt=$("#prompt").val();
-        let newprompt={"prompt":prompt,"x":x,"y":y,"sid":window.sid}
+        //https://stackoverflow.com/questions/11196230/how-to-efficiently-deal-with-a-large-amount-of-html5-canvas-pixel-data-over-webs
+        //https://stackoverflow.com/questions/24554830/canvas-how-to-convert-getimagedata-to-todataurl-format
+        let baseimg= context.getImageData(x, y, box.width(), box.height());
+
+        minicontext.putImageData(baseimg, 0, 0);
+
+        //minicontext.drawImage(minicanvas, x,y,box.width(),box.height());
+        var dataUrl =minicanvas.toDataURL('image/png');
+    
+        let newprompt={"prompt":prompt,"x":x,"y":y,"sid":window.sid,"baseimg":dataUrl}
         socket.emit("prompt", newprompt);
+
+        $("#prompter .info").toggle();
+        $("#inputs").addClass("busy");
         return false;
     });
  
@@ -81,8 +85,9 @@ $(document).ready(function() {
 
     socket.on('promptready', function(data) {
         //finished prompting
+        $("#prompter .info").toggle();
+        $("#inputs").removeClass("busy");
         sid=data["sid"];
-        
         
         if (sid===$("#sid").text()){
             console.log("its my prompt!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -132,6 +137,7 @@ $(document).ready(function() {
     }
 
     function putinCanvas(newimage){
+        console.log(newimage["imguri"]);
         base_image = new Image();
         base_image.src = newimage["imguri"];
         base_image.onload = function(){

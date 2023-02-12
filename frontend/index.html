@@ -9,8 +9,8 @@
 
     <div id="main">
         <div id="prompter" class="box">
-            <div>Drag me</div>
-           
+            <div class="info maininfo ">Drag me</div>
+            <div class="info busyinfo">Generating...</div>
         </div>
 
         <div id="others">
@@ -22,8 +22,9 @@
     <div id="users"></div>
 
     <div id="inputs">
+        <canvas id="minicanvas" width="512" height="512"></canvas>
         <form id="promptform">
-        <input id="prompt" >
+        <input id="prompt" placeholder="Prompt me">
         <button id="sendprompt">Send</button>
     </form>
 

@@ -16,18 +16,41 @@
     var currentScale = 0.3;
     var currentTranslate = { x: 0, y: 0 };
 
-  
-    
+    var parentWidth = $parent.width();
+    var parentHeight = $parent.height();
+     // Center the element on the screen
+     var elementWidth = $element.width();
+     var elementHeight = $element.height();
+
+    // Fit-to-screen scale calculation
+    var fitToScreenScale = (Math.min(parentWidth / elementWidth, parentHeight / elementHeight)/1.5);
+    // Set the current scale to fit-to-screen scale
+    console.log(fitToScreenScale);
+    currentScale = fitToScreenScale;
     $element.css({
       'position': 'absolute',
       'cursor': 'move',
-      'transform': 'translate(0, 0) scale('+currentScale+')'
+      'transform': 'translate(0px, 0px) scale(' + currentScale + ')'
+    });
+
+  // Center the element on the screen
+   elementWidth = $element[0].getBoundingClientRect().width;
+   elementHeight = $element[0].getBoundingClientRect().height;
+    
+    currentTranslate.x = (parentWidth - elementWidth) / 2;
+    currentTranslate.y = ((parentHeight-($("#inputs").height())*2) - elementHeight) / 2;
+
+
+    $element.css({
+      'position': 'absolute',
+      'cursor': 'move',
+      'transform': 'translate(' + currentTranslate.x + 'px, ' + currentTranslate.y + 'px) scale(' + currentScale + ')'
     });
 
     var startX, startY;
 
     $parent.on('mousedown', function (e) {
-      console.log()
+     
       if (e.target!==$("#prompter")[0]){
         startX = e.pageX;
         startY = e.pageY;

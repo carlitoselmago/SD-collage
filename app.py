@@ -8,7 +8,7 @@ STATIC_DIR = os.path.abspath('frontend/static')
 from backend.automatic1111 import imageGenerator
 
 app = Flask(__name__,template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
-socketio = SocketIO(app,ping_timeout=5,ping_interval=1)
+socketio = SocketIO(app,ping_timeout=25,ping_interval=1,max_http_buffer_size=1e9)
 
 imagesfolder="images/"
 
@@ -72,9 +72,15 @@ def prompt(message):
     x=message["x"]
     y=message["y"]
     sid=message["sid"]
+    print("")
+    print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
+    #print("baseimg",message["baseimg"])
+    print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
     print("SID",sid,"=======================================================")
-    print("new prompt",message)
-    imageid=IG.generateImage(p,x=x,y=y,room=room)
+    #print("new prompt",message)
+    #imageid=IG.generateImage(p,x=x,y=y,room=room)
+    #imageid=IG.generateImage2Image(p,startimage=message["baseimg"],x=x,y=y,room=room)
+    imageid=IG.generateImage(p,startimage=message["baseimg"],x=x,y=y,room=room)
     print("new image",imageid)
     print("")
     newimage={"imguri":imagesfolder+imageid+".jpg","x":x,"y":y}
