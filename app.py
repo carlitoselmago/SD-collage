@@ -1,14 +1,18 @@
 from flask import Flask, render_template,session,request,send_from_directory
 from flask_socketio import SocketIO,emit, join_room, leave_room
 import glob,os
+import threading
+from threading import Timer
+import time
+
 
 TEMPLATE_DIR = os.path.abspath('frontend')
 STATIC_DIR = os.path.abspath('frontend/static')
 
 from backend.automatic1111 import imageGenerator
-
+async_mode = None
 app = Flask(__name__,template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
-socketio = SocketIO(app,ping_timeout=25,ping_interval=1,max_http_buffer_size=1e9)
+socketio = SocketIO(app,ping_timeout=25,ping_interval=5,max_http_buffer_size=1e9,async_mode=async_mode)
 
 imagesfolder="images/"
 
@@ -57,8 +61,10 @@ def joined(message):
         print(u)
     print("")
     emit("yoursid",{"sid":sid})
-    usersExceptMe(users,sid,room)
+    usersExceptMe(room)
     updateImages()
+
+    socketio.start_background_task(target=periodic_emit)
     #emit('status', users, room=room)
 
 @socketio.on('ok')
@@ -74,6 +80,7 @@ def prompt(message):
     sid=message["sid"]
     print("")
     print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
+    print("prompt:",p,"by:",sid)
     #print("baseimg",message["baseimg"])
     print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
     print("SID",sid,"=======================================================")
@@ -102,7 +109,7 @@ def text(message):
    
     users[sid]["box"]=message["box"]
     users[sid]["prompt"]=message["prompt"]
-    usersExceptMe(users,sid,room)
+    usersExceptMe(room)
     #emit('message', move, room=room)
 
 
@@ -119,13 +126,35 @@ def left(message):
 def disconnect():
     print("user",request.sid," disconected")
     del users[request.sid]
+    emit("disconected",{"sid":request.sid})
 
-def usersExceptMe(usrs,meid,room):
-    u=usrs.copy()
-    #if meid in u:
-    #    del u[meid]
-    #    print(u)
-    emit('update', usrs , room=room,include_self=False)
+
+@socketio.on('ping')
+def onping():
+    print("PING!!")
+
+@socketio.event
+def my_ping():
+    print("my ping")
+    emit('my_pong')
+## FUNCTIONS ::::::::::::::::::::::::::::::::::::::::::
+
+
+
+def periodic_emit():
+    while True:
+        print("updatee")
+        socketio.sleep(15)
+        usersExceptMe("collage")
+
+"""
+timer1 = threading.Thread(target=periodic_emit)
+timer1.start()
+"""
+
+def usersExceptMe(room):
+    
+    socketio.emit('update', users , room=room,namespace='/')
 
 def updateImages():
     room = session.get('room')

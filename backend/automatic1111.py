@@ -66,18 +66,23 @@ class imageGenerator():
         #startimage=Image.open(io.BytesIO(base64.b64decode(startimage.split(",",1)[0])))
         startimage=self.dataurl_to_pil(startimage)
 
-        #if self.count_alpha_pixels(startimage)>19800:
-        if self.im_has_alpha(startimage):
+        inpaint_full_res=False
+
+        if self.count_alpha_pixels(startimage)>29800:
+        #if self.im_has_alpha(startimage):
+        #if 1==2:
             print("HAS SOME ALPHA")
             #startimage = np.array(startimage)
             #maskedimage=self.detect_white_mask(startimage)
             maskedimage=self.create_mask_fromRGBA(startimage)
             #startimage = startimage[:, :, 0:3]
             #startimage,maskedimage=self.applyMask(startimage)
+            inpaint_full_res=False
         else:
-            print("doesnt have any alpha")
+            print("DOESNT HAVE ANY ALPHA")
             #load a template mask
             maskedimage=self.STATIC_MASK
+            inpaint_full_res=False
         
         #startimage.save("images/test.png")
         #maskedimage.save("images/test2.png")
@@ -85,12 +90,12 @@ class imageGenerator():
         payload = {
             "init_images": [preimage],#[self.pil_to_base64(startimage)],
             "mask":self.pil_to_base64(maskedimage),
-            #"mask_blur":8,
+            "mask_blur":8,
             
             #"initial_noise_multiplier":5,
             "inpainting_fill": 0,
-            "inpaint_full_res": True,
-            "inpaint_full_res_padding":52,
+            "inpaint_full_res": inpaint_full_res,
+            #"inpaint_full_res_padding":52,
             "image_cfg_scale":15,
              
             "prompt": prompt,

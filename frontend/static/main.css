@@ -40,6 +40,18 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+  }
+  .otherbox{
+    left: 0px;
+    top: 0px;
+    display: flex;
+    flex-direction: column;
+  }
+  .otherbox .you{
+    font-size: 116px;
   }
 #prompter{
     z-index: 10;
@@ -53,10 +65,20 @@ pointer-events: none;
     display: none;
 }
 #sid{
+    display: none;
+}
+#sid,#me{
     position: fixed;
     right:0px;
     background-color: white;
     min-width: 200px;
+}
+#me{
+    z-index: 4;
+    background-color: transparent;
+    font-size: 47px;
+    right: 7px;
+    min-width: 0px;
 }
 #inputs{
     background-color: black;
@@ -99,4 +121,9 @@ transition: all 400ms ease-in-out;
 
     margin-bottom: 0px;
 
+}
+.prompt,.info{
+    background-color: white;
+    padding: 12px;
+    border-radius: 12px;
 }
