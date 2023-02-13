@@ -8,8 +8,9 @@ from io import BytesIO
 import numpy as np
 import skimage
 import skimage.measure
-from patchmatch import patch_match
+
 import cv2
+from backend.utils import *
 
 class imageGenerator():
 
@@ -82,10 +83,20 @@ class imageGenerator():
             print("DOESNT HAVE ANY ALPHA")
             #load a template mask
             maskedimage=self.STATIC_MASK
-            inpaint_full_res=False
+            #startimage=np.array(self.rgba2rgb(self.dataurl_to_pil(preimage)))
+            """
+            startimage=np.array(self.rgba2rgb(startimage))
+            mask = np.array(self.STATIC_MASK)[:, :, 0]
+            img, mask = functbl["patchmatch"](startimage, mask)
+            init_image = Image.fromarray(img)
+            mask = 255 - mask
+            mask = skimage.measure.block_reduce(mask, (8, 8), np.max)
+            mask = mask.repeat(8, axis=0).repeat(8, axis=1)
+            maskedimage = Image.fromarray(mask)
+            """
         
-        #startimage.save("images/test.png")
-        #maskedimage.save("images/test2.png")
+        startimage.save("images/test.png")
+        maskedimage.save("images/test2.png")
 
         payload = {
             "init_images": [preimage],#[self.pil_to_base64(startimage)],
@@ -155,64 +166,6 @@ class imageGenerator():
             return f
         """
 
-    def patch_match_func(self,img, mask):
-        ret = patch_match.inpaint(img, mask=255 - mask, patch_size=3)
-        return ret, mask
-    
-    def perlin_noise(self,img, mask):
-        lin = np.linspace(0, 5, mask.shape[0], endpoint=False)
-        x, y = np.meshgrid(lin, lin)
-        avg = img.mean(axis=0).mean(axis=0)
-        # noise=[((perlin(x, y)+1)*128+avg[i]).astype(np.uint8) for i in range(3)]
-        noise = [((self.perlin(x, y) + 1) * 0.5 * 255).astype(np.uint8) for i in range(3)]
-        noise = np.stack(noise, axis=-1)
-        # mask=skimage.measure.block_reduce(mask,(8,8),np.min)
-        # mask=mask.repeat(8, axis=0).repeat(8, axis=1)
-        # mask_image=Image.fromarray(mask)
-        # mask_image=mask_image.filter(ImageFilter.GaussianBlur(radius = 4))
-        # mask=np.array(mask_image)
-        nmask = mask.copy()
-        # nmask=nmask/255.0
-        nmask[mask > 0] = 1
-        img = nmask[:, :, np.newaxis] * img + (1 - nmask[:, :, np.newaxis]) * noise
-        # img=img.astype(np.uint8)
-        return img, mask
-
-    def perlin(self,x, y, seed=0):
-        # permutation table
-        np.random.seed(seed)
-        p = np.arange(256, dtype=int)
-        np.random.shuffle(p)
-        p = np.stack([p, p]).flatten()
-        # coordinates of the top-left
-        xi, yi = x.astype(int), y.astype(int)
-        # internal coordinates
-        xf, yf = x - xi, y - yi
-        # fade factors
-        u, v = self.fade(xf), self.fade(yf)
-        # noise components
-        n00 = self.gradient(p[p[xi] + yi], xf, yf)
-        n01 = self.gradient(p[p[xi] + yi + 1], xf, yf - 1)
-        n11 = self.gradient(p[p[xi + 1] + yi + 1], xf - 1, yf - 1)
-        n10 = self.gradient(p[p[xi + 1] + yi], xf - 1, yf)
-        # combine noises
-        x1 = self.lerp(n00, n10, u)
-        x2 = self.lerp(n01, n11, u)  # FIX1: I was using n10 instead of n01
-        return self.lerp(x1, x2, v)  # FIX2: I also had to reverse x1 and x2 here
-    
-    def fade(self,t):
-        "6t^5 - 15t^4 + 10t^3"
-        return 6 * t ** 5 - 15 * t ** 4 + 10 * t ** 3
-
-    def gradient(self,h, x, y):
-        "grad converts h to the right gradient vector and return the dot product with (x,y)"
-        vectors = np.array([[0, 1], [0, -1], [1, 0], [-1, 0]])
-        g = vectors[h % 4]
-        return g[:, :, 0] * x + g[:, :, 1] * y
-
-    def lerp(self,a, b, x):
-        "linear interpolation"
-        return a + x * (b - a)
 
     def detect_white_mask(self,image):
         # Convert the PIL image to a numpy array
@@ -264,6 +217,11 @@ class imageGenerator():
                 count += 1
         print("COUNT ALPHA",count)
         return count
+
+    def rgba2rgb(self,rgba_image):
+        img = Image.new("RGB", rgba_image.size, (255, 255, 255))
+        img.paste(rgba_image, mask = rgba_image.split()[3])
+        return img
 
 if __name__ == "__main__":
     IG=imageGenerator()

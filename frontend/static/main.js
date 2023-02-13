@@ -58,10 +58,13 @@ $(document).ready(function () {
         let x = parseInt(target.css("left"));
         let y = parseInt(target.css("top"));
         let prompt = $("#prompt").val();
+        //console.log(x,y,box.width(),box.height());
+        boxSize=512;
         //https://stackoverflow.com/questions/11196230/how-to-efficiently-deal-with-a-large-amount-of-html5-canvas-pixel-data-over-webs
         //https://stackoverflow.com/questions/24554830/canvas-how-to-convert-getimagedata-to-todataurl-format
-        let baseimg = context.getImageData(x, y, box.width(), box.height());
-
+        //let baseimg = context.getImageData(x, y, box.width(), box.height());
+        let baseimg = context.getImageData(x, y, boxSize, boxSize);
+        
         minicontext.putImageData(baseimg, 0, 0);
 
         //minicontext.drawImage(minicanvas, x,y,box.width(),box.height());
@@ -94,7 +97,8 @@ $(document).ready(function () {
         sid = data["sid"];
 
         if (sid === $("#sid").text()) {
-            $("#prompter .info").toggle();
+            $("#prompter .info.maininfo").show();
+            $("#prompter .info.busyinfo").hide();
             $("#inputs").removeClass("busy");
             console.log("its my prompt!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", sid)
             $("#prompt").val("");
