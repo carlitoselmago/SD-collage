@@ -4,6 +4,18 @@ import glob,os
 import threading
 from threading import Timer
 import time
+import argparse
+from PIL import Image
+
+#defaults:::::::::::::::::::::::::::::::::::::::::::
+
+defaults={
+    "width":3600,
+    "height":2800,
+    "firstimagewait":0
+}
+
+#end defaults:::::::::::::::::::::::::::::::::::::::
 
 
 TEMPLATE_DIR = os.path.abspath('frontend')
@@ -22,16 +34,37 @@ users={}
 images=[]
 
 #load images from folder (doesn't take yet room into account)
-print("LOADING IMAGES!")
-for file in glob.glob(imagesfolder+"*.jpg"):
+
+imgs=glob.glob(imagesfolder+"*.jpg")
+imgs.sort(key=str.lower)
+print("IMAGESSS",imgs)
+for file in imgs:
     img=file.split("_")
     newimage={"imguri":file,"x":img[1],"y":img[2].split(".")[0]} 
     images.append(newimage)
-print(images)
+#print("IMAGES",images)
+
+parser = argparse.ArgumentParser( prog = 'SD-collage')
+parser.add_argument('-s', '--startimage',action='store_true')
+args = parser.parse_args()
+
+if args.startimage:
+    imgs=os.listdir(imagesfolder)
+    imgs.sort(key=str.lower)
+    firstimage=imgs[0]
+    print("Grabbing the first image as background template:",firstimage)
+    firstimagesize=Image.open(imagesfolder+firstimage).size
+    defaults={
+        "width":firstimagesize[0],
+        "height":firstimagesize[1],
+        "firstimagewait":300 #in milliseconds
+    }
+
+
 
 @app.route('/')
 def main():
-    return render_template('index.html')
+    return render_template('index.html',defaults=defaults)
 
 @app.route('/images/<path:filename>')
 def base_static(filename):
@@ -143,7 +176,7 @@ def my_ping():
 
 def periodic_emit():
     while True:
-        print("updatee")
+        #print("updatee")
         socketio.sleep(15)
         usersExceptMe("collage")
 

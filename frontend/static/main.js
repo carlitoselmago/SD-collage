@@ -1,9 +1,11 @@
 window.sid = false;
+window.firstpaint=true
 
 const canvasContainer = document.getElementById('canvas');
 
-const canvasWidth = 3600;//2160;
-const canvasHeight = 2800;//3054;
+const canvasWidth = $("body").attr("width");
+const canvasHeight = $("body").attr("height");
+const firstimagewait=parseInt($("body").attr("firstimagewait"));
 
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d', { willReadFrequently: true });
@@ -144,21 +146,49 @@ function createOtherBox(sid, box) {
 }
 
 function updateImages(images) {
-    images.forEach(img => {
+    
+    if (window.firstpaint){
+        console.log("FIRST UPDATE OF IMAGES",images)
+        window.firstpaint=false;
+        firstimage=images.shift();
+        loadedimages[firstimage["imguri"]] = true;
+        putinCanvas(firstimage);
+        window.setTimeout(function(){
+            
+            images.forEach(img => {
 
-        if (loadedimages[img["imguri"]] === undefined) {
-            loadedimages[img["imguri"]] = true;
-            putinCanvas(img);
-        }
-    });
+                if (loadedimages[img["imguri"]] === undefined) {
+                    loadedimages[img["imguri"]] = true;
+                    putinCanvas(img);
+                }
+            });
+        }, firstimagewait);
+    } else{
+    
+        
+        images.forEach(img => {
+
+            if (loadedimages[img["imguri"]] === undefined) {
+                //loadedimages[img["imguri"]] = true;
+                putinCanvas(img);
+            }
+        });
+        
+    }
+
+   
 }
+
+
 
 function putinCanvas(newimage) {
     console.log(newimage["imguri"]);
-    base_image = new Image();
-    base_image.src = newimage["imguri"];
-    base_image.onload = function () {
-        context.drawImage(this, newimage["x"], newimage["y"]);
+    if (newimage["imguri"]){
+        base_image = new Image();
+        base_image.src = newimage["imguri"];
+        base_image.onload = function () {
+            context.drawImage(this, newimage["x"], newimage["y"]);
+        }
     }
 }
 
