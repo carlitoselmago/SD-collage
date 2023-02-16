@@ -1,14 +1,23 @@
 html{
     overflow: hidden;
+    width: 100%;
+    height: 100%;
 }
 body{
     background-color: lightgray;
     font-family: Arial;
     margin: 0px;
+    width: 100%;
+    height: 100%;
+}
+.wrap{
+    width: 100%;
+    height: 100%;
 }
 #main{
     transform-origin: 0 0;
-
+    width: 100%;
+    height: 100%;
 }
 #main,#canvas{
     overflow: hidden;
@@ -78,6 +87,7 @@ pointer-events: none;
     background-color: transparent;
     font-size: 47px;
     right: 7px;
+    top: 9px;
     min-width: 0px;
 }
 #inputs{
@@ -87,6 +97,7 @@ pointer-events: none;
     width: 100%;
     text-align: center;
     padding: 20px;
+    box-sizing: border-box;
     -webkit-transition: all 400ms ease-in-out;
 -moz-transition: all 400ms ease-in-out;
 -ms-transition: all 400ms ease-in-out;
@@ -101,18 +112,23 @@ transition: all 400ms ease-in-out;
 #inputs #prompt{
     border: none;
     font-size: 30px;
-    height: 50px;
+    height: 48px;
     padding-left: 10px;
     max-width: 90%;
-    min-width: 800px;
+    width: 800px;
+    outline: none !important;
+    -webkit-border-radius: 12px 0 0 12px;
+    border-radius: 12px 0 0 12px;
 }
 #sendprompt{
     height: 50px;
     border: solid 1px white;
     background-color: transparent;
     color: white;
-    min-width: 141px;
+    width: 141px;
     font-size: 25px;
+    -webkit-border-radius: 0 12px 12px 0;
+border-radius: 0 12px 12px 0;
 }
 #promptform{
     display: flex;
@@ -126,4 +142,20 @@ transition: all 400ms ease-in-out;
     background-color: white;
     padding: 12px;
     border-radius: 12px;
+}
+
+@media (max-width: 980px) {
+    #promptform{
+        justify-content: space-between;
+    }
+    #inputs #prompt{
+        width: 80% ;
+    }
+    #sendprompt{
+        width: 20%;
+      
+    }
+    #me{
+        font-size: 29px;
+    }
 }

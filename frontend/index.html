@@ -1,46 +1,50 @@
-
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
 
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
     <title>SD-Collage</title>
 
     <link href="{{ url_for('static',filename='main.css') }}" rel="stylesheet" type="text/css">
 </head>
 
 <body width="{{ defaults.width }}" height="{{ defaults.height }}" firstimagewait="{{defaults.firstimagewait}}"">
-    <div id="sid"></div>
-    <div id="me"></div>
-
-    <div id="main">
-        <div id="prompter" class="box">
-            <div class="info maininfo ">Drag me</div>
-            <div class="info busyinfo">Generating...</div>
-        </div>
-
-        <div id="others">
-
-        </div>
-        <div id="canvas"></div>
-    </div>
     
-    <div id="users"></div>
+    <div class="wrap">
+        <div id=" sid"></div>
+            <div id="me"></div>
+        <div id="main">
+            
+            <div id="prompter" class="box">
+                <div class="info maininfo ">Drag me</div>
+                <div class="info busyinfo">Generating...</div>
+            </div>
+
+            <div id="others">
+
+            </div>
+            <div id="canvas"></div>
+        </div>
+    </div>
+
 
     <div id="inputs">
         <canvas id="minicanvas" width="512" height="512"></canvas>
         <form id="promptform">
-        <input id="prompt" placeholder="Prompt me" autocomplete="off">
-        <button id="sendprompt">Send</button>
-    </form>
+            <input id="prompt" placeholder="Prompt me" autocomplete="off">
+            <button id="sendprompt">Send</button>
+        </form>
 
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
 
-        <script type="text/javascript" src="{{ url_for('static',filename='draggable_jquery.js') }}"></script>  
-    <script type="text/javascript" src="{{ url_for('static',filename='panzoom_jquery.js') }}"></script>    
+    <script type="text/javascript" src="{{ url_for('static',filename='draggable_jquery.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='panzoom_jquery.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='main.js') }}"></script>
 </body>
 

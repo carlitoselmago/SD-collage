@@ -1,11 +1,11 @@
 window.sid = false;
-window.firstpaint=true
+window.firstpaint = true
 
 const canvasContainer = document.getElementById('canvas');
 
 const canvasWidth = $("body").attr("width");
 const canvasHeight = $("body").attr("height");
-const firstimagewait=parseInt($("body").attr("firstimagewait"));
+const firstimagewait = parseInt($("body").attr("firstimagewait"));
 
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d', { willReadFrequently: true });
@@ -20,8 +20,16 @@ canvasContainer.appendChild(canvas);
 
 var socket;
 var loadedimages = {};
+var firstloaded=false;
 
 $(document).ready(function () {
+
+    window.addEventListener('wheel', function (e) {
+
+        e.preventDefault()
+        console.log("touchpad");
+
+    }, { passive: false })
 
     const minicanvas = document.getElementById('minicanvas');
     const minicontext = minicanvas.getContext('2d', { willReadFrequently: true });
@@ -61,12 +69,12 @@ $(document).ready(function () {
         let y = parseInt(target.css("top"));
         let prompt = $("#prompt").val();
         //console.log(x,y,box.width(),box.height());
-        boxSize=512;
+        boxSize = 512;
         //https://stackoverflow.com/questions/11196230/how-to-efficiently-deal-with-a-large-amount-of-html5-canvas-pixel-data-over-webs
         //https://stackoverflow.com/questions/24554830/canvas-how-to-convert-getimagedata-to-todataurl-format
         //let baseimg = context.getImageData(x, y, box.width(), box.height());
         let baseimg = context.getImageData(x, y, boxSize, boxSize);
-        
+
         minicontext.putImageData(baseimg, 0, 0);
 
         //minicontext.drawImage(minicanvas, x,y,box.width(),box.height());
@@ -90,7 +98,14 @@ $(document).ready(function () {
 
     });
     socket.on('newimage', function (images) {
-        updateImages(images);
+        
+        if (!firstloaded){
+            preloadImages(images);
+            firstloaded=true;
+        } else {
+            updateImages(images);
+        }
+      
     });
 
     socket.on('promptready', function (data) {
@@ -124,7 +139,7 @@ $(document).ready(function () {
     });
 
     socket.on('update', function (data) {
-        console.log("on update", data);
+        // console.log("on update", data);
         manageOthers(data);
         socket.emit('ok');
     });
@@ -145,45 +160,61 @@ function createOtherBox(sid, box) {
     }
 }
 
-function updateImages(images) {
-    
-    if (window.firstpaint){
-        console.log("FIRST UPDATE OF IMAGES",images)
-        window.firstpaint=false;
-        firstimage=images.shift();
-        loadedimages[firstimage["imguri"]] = true;
-        putinCanvas(firstimage);
-        window.setTimeout(function(){
-            
-            images.forEach(img => {
 
-                if (loadedimages[img["imguri"]] === undefined) {
-                    loadedimages[img["imguri"]] = true;
-                    putinCanvas(img);
+function renderImages(images) {
+    console.log("all preloaded");
+    images.forEach(imag => {
+
+        // putinCanvas(img);
+        //console.log(imag);
+        context.drawImage(imag["img"], imag["x"], imag["y"]);
+
+    });
+}
+
+function preloadImages(topreload) {
+    console.log("preloadimages")
+    let images = [];
+    let imageCount = 0;
+
+    //console.log(topreload);
+    topreload.forEach(img => {  // for each image url
+        if (loadedimages[img["imguri"]] === undefined) {
+            loadedimages[img["imguri"]] = true;
+            const image = new Image();
+            image.src = img["imguri"];
+            image.onload = () => {
+                imageCount += 1;
+                //console.log(imageCount,topreload.length);
+                if (imageCount === topreload.length) { // have all loaded????
+                    renderImages(images);
                 }
-            });
-        }, firstimagewait);
-    } else{
-    
-        
-        images.forEach(img => {
-
-            if (loadedimages[img["imguri"]] === undefined) {
-                //loadedimages[img["imguri"]] = true;
-                putinCanvas(img);
             }
-        });
-        
-    }
 
-   
+            images.push({ "img": image, "x": parseInt(img["x"]), "y": parseInt(img["y"]) }); // add loading image to images array
+        }
+    });
+}
+
+
+
+
+function updateImages(images) {
+    images.forEach(img => {
+
+        if (loadedimages[img["imguri"]] === undefined) {
+            loadedimages[img["imguri"]] = true;
+            putinCanvas(img);
+        }
+    });
+
 }
 
 
 
 function putinCanvas(newimage) {
     console.log(newimage["imguri"]);
-    if (newimage["imguri"]){
+    if (newimage["imguri"]) {
         base_image = new Image();
         base_image.src = newimage["imguri"];
         base_image.onload = function () {
@@ -197,9 +228,9 @@ function deleteOtherBox(sid) {
 }
 
 function manageOthers(boxes) {
-    console.log(boxes);
 
-    console.log("boxes exists");
+
+
     for (var sid in boxes) {
         let v = boxes[sid];
         let target = $("#" + sid);
@@ -246,12 +277,12 @@ function sessionIdToEmoji(sessionId) {
         emojiCodePoint += sessionId.charCodeAt(i);
     }
     let emojiList = [
-        "🚀", "🌟", "🌙", "🌊", "🏞️", "🏙️", "🗽", "🌋", "🌄", "🌃", 
-        "🏙️", "🏰", "🗼", "🏯", "⛩️", "🚲", "🚂", "🚗", "✈️", "🛴", "🚁", 
-        "🚀", "🛸", "🌌", "🌊", "🌳", "🍁", "🌸", "🌺", "🍄", "🍎", "🍇", 
-        "🍓", "🍈", "🍌", "🌽", "🍔", "🍟", "🍕", "🥐", "🥑", "🥦", "🥒", 
-        "🥓", "🎃", "🎁", "🎂", "🎄", "🎅", "🎉", "🎊", "🎁", "🎂", "🎄", 
-        "🎅", "🎉", "🎊", "💡", "💻", "📱", "⌚️", "💾", "💿", "💰", "💳", 
+        "🚀", "🌟", "🌙", "🌊", "🏞️", "🏙️", "🗽", "🌋", "🌄", "🌃",
+        "🏙️", "🏰", "🗼", "🏯", "⛩️", "🚲", "🚂", "🚗", "✈️", "🛴", "🚁",
+        "🚀", "🛸", "🌌", "🌊", "🌳", "🍁", "🌸", "🌺", "🍄", "🍎", "🍇",
+        "🍓", "🍈", "🍌", "🌽", "🍔", "🍟", "🍕", "🥐", "🥑", "🥦", "🥒",
+        "🥓", "🎃", "🎁", "🎂", "🎄", "🎅", "🎉", "🎊", "🎁", "🎂", "🎄",
+        "🎅", "🎉", "🎊", "💡", "💻", "📱", "⌚️", "💾", "💿", "💰", "💳",
         "🔑", "🔨"
 
     ];

@@ -69,6 +69,8 @@ class imageGenerator():
 
         inpaint_full_res=False
         image_cfg_scale=15
+        denoising_strength=0.6
+        seed= int(time.time())
 
         if self.count_alpha_pixels(startimage)>29800:
         #if self.im_has_alpha(startimage):
@@ -85,6 +87,7 @@ class imageGenerator():
             #load a template mask
             maskedimage=self.STATIC_MASK
             image_cfg_scale=25
+            denoising_strength=0.8
             steps=25
             #startimage=np.array(self.rgba2rgb(self.dataurl_to_pil(preimage)))
             """
@@ -111,10 +114,10 @@ class imageGenerator():
             "inpaint_full_res": inpaint_full_res,
             #"inpaint_full_res_padding":52,
             "image_cfg_scale":image_cfg_scale,
-             
+            "seed":seed,
             "prompt": prompt,
             "negative_prompt":"",
-            "denoising_strength":0.6,
+            "denoising_strength":denoising_strength,
             "steps": steps,
             "width":512,
             "height":512

@@ -177,7 +177,7 @@ def my_ping():
 def periodic_emit():
     while True:
         #print("updatee")
-        socketio.sleep(15)
+        socketio.sleep(25)
         usersExceptMe("collage")
 
 """
