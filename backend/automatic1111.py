@@ -14,7 +14,7 @@ from backend.utils import *
 
 class imageGenerator():
 
-
+    negative_prompt="text, letters"
 
     def __init__(self,savefolder=""): 
         self.savefolder=savefolder
@@ -43,7 +43,7 @@ class imageGenerator():
     def generateImageText2Image(self,prompt="",steps=10,x=0,y=0,room=""):
         payload = {
             "prompt": prompt,
-            "negative_prompt":"",
+            "negative_prompt":self.negative_prompt,
             "steps": steps,
             "width":512,
             "height":512
@@ -87,7 +87,7 @@ class imageGenerator():
             #load a template mask
             maskedimage=self.STATIC_MASK
             image_cfg_scale=25
-            denoising_strength=0.8
+            denoising_strength=0.6
             steps=25
             #startimage=np.array(self.rgba2rgb(self.dataurl_to_pil(preimage)))
             """
@@ -116,7 +116,7 @@ class imageGenerator():
             "image_cfg_scale":image_cfg_scale,
             "seed":seed,
             "prompt": prompt,
-            "negative_prompt":"",
+            "negative_prompt":self.negative_prompt,
             "denoising_strength":denoising_strength,
             "steps": steps,
             "width":512,

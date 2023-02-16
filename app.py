@@ -64,6 +64,8 @@ if args.startimage:
 
 @app.route('/')
 def main():
+    mode = request.args.get('mode', default = "", type = str)
+    defaults["mode"]=mode
     return render_template('index.html',defaults=defaults)
 
 @app.route('/images/<path:filename>')
@@ -125,7 +127,7 @@ def prompt(message):
     print("")
     newimage={"imguri":imagesfolder+imageid+".jpg","x":x,"y":y}
     images.append(newimage)
-    
+    del users[sid]["prompt"]
     emit("promptready",{"sid":sid},room=room)
     updateImages()
     
@@ -145,6 +147,9 @@ def text(message):
     usersExceptMe(room)
     #emit('message', move, room=room)
 
+@socketio.on('ghostuser')
+def setghostuser():
+    del users[request.sid]
 
 @socketio.on('left', namespace='/collage')
 def left(message):

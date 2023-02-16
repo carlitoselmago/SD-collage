@@ -5,6 +5,7 @@
       scale: 1.1,
       zoomIn: true,
       zoomOut: true,
+      initialScale:1.5,
       onstop: function () { }
     }, options);
 
@@ -22,7 +23,7 @@
     // Center the element on the screen
     var elementWidth = $element.width();
     var elementHeight = $element.height();
-    var fitToScreenScale = (Math.min(parentWidth / elementWidth, parentHeight / elementHeight) / 1.5);
+    var fitToScreenScale = (Math.min(parentWidth / elementWidth, parentHeight / elementHeight) / settings.initialScale);
     currentScale = fitToScreenScale;
     console.log(parentHeight);
 

@@ -1,42 +1,52 @@
-html{
+html {
     overflow: hidden;
     width: 100%;
     height: 100%;
 }
-body{
+
+body {
     background-color: lightgray;
     font-family: Arial;
     margin: 0px;
     width: 100%;
     height: 100%;
 }
-.wrap{
+
+#wrap {
     width: 100%;
     height: 100%;
+    transform:translate(0,0);
 }
-#main{
+
+#main {
     transform-origin: 0 0;
     width: 100%;
     height: 100%;
 }
-#main,#canvas{
+
+#main,
+#canvas {
     overflow: hidden;
     position: absolute;
     width: 100%;
     height: 100%;
 }
-#canvas{
+
+#canvas {
     height: 100%;
 }
-#maincanvas{
+
+#maincanvas {
     background-color: white;
-    
+
 }
-#minicanvas{
+
+#minicanvas {
     width: 250px;
-    border:solid 1px white;
+    border: solid 1px white;
     display: none;
 }
+
 .box {
     width: 512px;
     height: 512px;
@@ -44,7 +54,7 @@ body{
     position: absolute;
     font-size: 45px;
     text-align: center;
-    border:solid 5px grey;
+    border: solid 5px grey;
     z-index: 5;
     display: flex;
     justify-content: center;
@@ -52,37 +62,46 @@ body{
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
-  }
-  .otherbox{
+}
+
+.otherbox {
     left: 0px;
     top: 0px;
     display: flex;
     flex-direction: column;
-  }
-  .otherbox .you{
+}
+
+.otherbox .you {
     font-size: 116px;
-  }
-#prompter{
+}
+
+#prompter {
     z-index: 10;
-    border:solid 10px orange;
+    border: solid 10px orange;
     transform-origin: 0 0;
 }
-.info{
-pointer-events: none;
+
+.info {
+    pointer-events: none;
 }
-.busyinfo{
+
+.busyinfo {
     display: none;
 }
-#sid{
+
+#sid {
     display: none;
 }
-#sid,#me{
+
+#sid,
+#me {
     position: fixed;
-    right:0px;
+    right: 0px;
     background-color: white;
     min-width: 200px;
 }
-#me{
+
+#me {
     z-index: 4;
     background-color: transparent;
     font-size: 47px;
@@ -90,7 +109,8 @@ pointer-events: none;
     top: 9px;
     min-width: 0px;
 }
-#inputs{
+
+#inputs {
     background-color: black;
     position: fixed;
     bottom: 0px;
@@ -99,17 +119,19 @@ pointer-events: none;
     padding: 20px;
     box-sizing: border-box;
     -webkit-transition: all 400ms ease-in-out;
--moz-transition: all 400ms ease-in-out;
--ms-transition: all 400ms ease-in-out;
--o-transition: all 400ms ease-in-out;
-transition: all 400ms ease-in-out;
+    -moz-transition: all 400ms ease-in-out;
+    -ms-transition: all 400ms ease-in-out;
+    -o-transition: all 400ms ease-in-out;
+    transition: all 400ms ease-in-out;
 }
-#inputs.busy{
+
+#inputs.busy {
 
     bottom: -100px;
 
 }
-#inputs #prompt{
+
+#inputs #prompt {
     border: none;
     font-size: 30px;
     height: 48px;
@@ -120,7 +142,8 @@ transition: all 400ms ease-in-out;
     -webkit-border-radius: 12px 0 0 12px;
     border-radius: 12px 0 0 12px;
 }
-#sendprompt{
+
+#sendprompt {
     height: 50px;
     border: solid 1px white;
     background-color: transparent;
@@ -128,9 +151,16 @@ transition: all 400ms ease-in-out;
     width: 141px;
     font-size: 25px;
     -webkit-border-radius: 0 12px 12px 0;
-border-radius: 0 12px 12px 0;
+    border-radius: 0 12px 12px 0;
 }
-#promptform{
+body.streamer {
+    background-color: black;
+}
+body.streamer #inputs,body.streamer #me,body.streamer #prompter{
+    display: none !important;
+}
+
+#promptform {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -138,24 +168,33 @@ border-radius: 0 12px 12px 0;
     margin-bottom: 0px;
 
 }
-.prompt,.info{
+
+.prompt,
+.info {
     background-color: white;
     padding: 12px;
     border-radius: 12px;
+    display: none;
+}
+.prompting .prompt{
+    display: block;
 }
 
 @media (max-width: 980px) {
-    #promptform{
+    #promptform {
         justify-content: space-between;
     }
-    #inputs #prompt{
-        width: 80% ;
+
+    #inputs #prompt {
+        width: 80%;
     }
-    #sendprompt{
+
+    #sendprompt {
         width: 20%;
-      
+
     }
-    #me{
+
+    #me {
         font-size: 29px;
     }
 }

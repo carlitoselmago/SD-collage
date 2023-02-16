@@ -34,6 +34,12 @@ $(document).ready(function () {
     const minicanvas = document.getElementById('minicanvas');
     const minicontext = minicanvas.getContext('2d', { willReadFrequently: true });
 
+    let initialScale=1.5;
+    if ($("body").hasClass("streamer")){
+        console.log("streamer mode");
+        initialScale=1.1;
+    }
+    
     $("#prompt").focus();
 
     $("#prompter").on("click", function (e) {
@@ -42,6 +48,7 @@ $(document).ready(function () {
 
     //init scale
     $("#main").panZoom({
+        initialScale:initialScale,
         onstop: function () {
             $("#prompt").focus();
         }
@@ -88,13 +95,23 @@ $(document).ready(function () {
         return false;
     });
 
+    if ($("body").hasClass("streamer")){
+        console.log("streamer mode");
+        $("#wrap").streamer({
+            "watchClass":"otherbox",
+            "triggerClass":"prompting",
+            "maxTime":15
+        });
+    }
 
 
     //SOCKET:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     socket = io.connect('http://' + document.domain + ':' + location.port);
+   
     socket.on('connect', function (data) {
         console.log("connected");
         boxChange("joined");
+        
 
     });
     socket.on('newimage', function (images) {
@@ -119,6 +136,10 @@ $(document).ready(function () {
             $("#inputs").removeClass("busy");
             console.log("its my prompt!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", sid)
             $("#prompt").val("");
+        } else {
+            console.log("finished prompt for other",sid)
+            $("#"+sid+" .prompt").text("");
+            $("#"+sid).removeClass("prompting");
         }
     });
     socket.on('status', function (data) {
@@ -134,7 +155,9 @@ $(document).ready(function () {
             window.sid = data["sid"];
             $("#sid").text(data["sid"]);
             $("#me").text(sessionIdToEmoji(data["sid"]))
-
+            if ($("body").hasClass("streamer")){
+                socket.emit("ghostuser")
+            }
         }
     });
 
@@ -155,7 +178,7 @@ $(document).ready(function () {
 
 });
 function createOtherBox(sid, box) {
-    if (sid !== window.sid) {
+    if (sid !== $("#sid").text()) {
         $("#others").append('<div id="' + sid + '" class="box otherbox" style="left:' + box[0] + ';top:' + box[1] + '"><div class="you">' + sessionIdToEmoji(sid) + '</div><div class="prompt"></div></div>');
     }
 }
@@ -229,15 +252,21 @@ function deleteOtherBox(sid) {
 
 function manageOthers(boxes) {
 
-
-
     for (var sid in boxes) {
         let v = boxes[sid];
         let target = $("#" + sid);
         if (target.length) {
             target.css("left", v["box"][0]);
             target.css("top", v["box"][1]);
-            $(".prompt", target).text(v["prompt"])
+            if (v["prompt"] !== undefined){
+            if (v["prompt"].length>0){
+                $(".prompt", target).text(v["prompt"]);
+                if (!target.hasClass("prompting")){
+                    target.addClass("prompting");
+                }
+            }
+        }
+           
         } else {
             createOtherBox(sid, v);
         }
