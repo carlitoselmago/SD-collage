@@ -10,4 +10,5 @@ bash webui.sh --nowebui --port 7861
 
 ## Future features
 - Scaling mode: Prompter box starts big, and as time passes prompter box becomes smaller to focus on inpainting detail
-- Add brush?
+- Add mask brush?
+- Some kind of planned subject that includes a prefix/sufix hidden prompt (e.g. Isometric)
