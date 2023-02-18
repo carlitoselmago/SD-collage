@@ -24,6 +24,11 @@ var firstloaded=false;
 
 $(document).ready(function () {
 
+    let protocol="http";
+    if ($("body").hasClass("ssl")){
+        protocol="https";
+    }
+
     window.addEventListener('wheel', function (e) {
 
         e.preventDefault()
@@ -106,7 +111,7 @@ $(document).ready(function () {
 
 
     //SOCKET:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    socket = io.connect('http://' + document.domain + ':' + location.port);
+    socket = io.connect(protocol+'://' + document.domain + ':' + location.port);
    
     socket.on('connect', function (data) {
         console.log("connected");

@@ -46,6 +46,7 @@ for file in imgs:
 
 parser = argparse.ArgumentParser( prog = 'SD-collage')
 parser.add_argument('-s', '--startimage',action='store_true')
+parser.add_argument('-ssl', '--runinssl',action='store_true')
 args = parser.parse_args()
 
 if args.startimage:
@@ -66,6 +67,8 @@ if args.startimage:
 def main():
     mode = request.args.get('mode', default = "", type = str)
     defaults["mode"]=mode
+    if args.runinssl:
+        defaults["mode"]+=" ssl"
     return render_template('index.html',defaults=defaults)
 
 @app.route('/images/<path:filename>')
@@ -199,4 +202,7 @@ def updateImages():
     emit('newimage', images , room=room)
 
 if __name__ == '__main__':
-    socketio.run(app,debug=True,host="0.0.0.0")
+    if args.runinssl:
+        socketio.run(app,debug=True,host="0.0.0.0",keyfile='key.pem', certfile='cert.pem')
+    else:
+        socketio.run(app,debug=True,host="0.0.0.0")
