@@ -86,10 +86,19 @@ class imageGenerator():
             print("DOESNT HAVE ANY ALPHA")
             #load a template mask
             maskedimage=self.STATIC_MASK
-            image_cfg_scale=25
-            denoising_strength=0.6
+            maskedimage_invert=(maskedimage.convert('L'))
+            inpaint_full_res=True
+            #image_cfg_scale=25
+            denoising_strength=0.7
             steps=25
-            #startimage=np.array(self.rgba2rgb(self.dataurl_to_pil(preimage)))
+
+            
+            """
+            startimage=(self.rgba2rgb(self.dataurl_to_pil(preimage)))
+            startimage.paste(im=maskedimage_invert, box=(0, 0), mask=maskedimage_invert)
+            #startimage=Image.composite(startimage,maskedimage,maskedimage)
+            preimage=self.pil_to_base64(startimage)
+            """
             """
             startimage=np.array(self.rgba2rgb(startimage))
             mask = np.array(self.STATIC_MASK)[:, :, 0]
@@ -101,16 +110,18 @@ class imageGenerator():
             maskedimage = Image.fromarray(mask)
             """
         
-        #startimage.save("test.png")
-        #maskedimage.save("test2.png")
+        startimage.save("test.png")
+        maskedimage.save("test2.png")
 
         payload = {
             "init_images": [preimage],#[self.pil_to_base64(startimage)],
             "mask":self.pil_to_base64(maskedimage),
             #"mask_blur":8,
             
+         
             #"initial_noise_multiplier":5,
-            "inpainting_fill": 0,
+           # "inpainting_fill": 0,
+           "inpainting_fill":1,
             "inpaint_full_res": inpaint_full_res,
             #"inpaint_full_res_padding":52,
             "image_cfg_scale":image_cfg_scale,

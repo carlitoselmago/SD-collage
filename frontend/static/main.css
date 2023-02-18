@@ -42,7 +42,7 @@ body {
 }
 
 #minicanvas {
-    width: 250px;
+    width: 512px;
     border: solid 1px white;
     display: none;
 }

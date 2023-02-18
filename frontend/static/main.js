@@ -13,6 +13,15 @@ canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 canvas.setAttribute("id", "maincanvas");
 
+const padding=100; //padding for adding context when inpainting
+const baseSize=512; //size for the images generated
+
+var gensize=baseSize;
+
+if (padding>0){
+    gensize+=(padding*2);
+}
+
 $("#main").css("width", canvasWidth + "px");
 $("#main").css("height", canvasHeight + "px");
 
@@ -35,6 +44,12 @@ $(document).ready(function () {
         console.log("touchpad");
 
     }, { passive: false })
+
+   
+    $("#minicanvas").css("width", gensize + "px");
+    $("#minicanvas").css("height", gensize + "px");
+    $("#minicanvas").attr("width", gensize);
+    $("#minicanvas").attr("height",gensize);
 
     const minicanvas = document.getElementById('minicanvas');
     const minicontext = minicanvas.getContext('2d', { willReadFrequently: true });
@@ -80,12 +95,12 @@ $(document).ready(function () {
         let x = parseInt(target.css("left"));
         let y = parseInt(target.css("top"));
         let prompt = $("#prompt").val();
-        //console.log(x,y,box.width(),box.height());
-        boxSize = 512;
-        //https://stackoverflow.com/questions/11196230/how-to-efficiently-deal-with-a-large-amount-of-html5-canvas-pixel-data-over-webs
-        //https://stackoverflow.com/questions/24554830/canvas-how-to-convert-getimagedata-to-todataurl-format
-        //let baseimg = context.getImageData(x, y, box.width(), box.height());
-        let baseimg = context.getImageData(x, y, boxSize, boxSize);
+       
+        //boxSize = 512;
+
+        //let baseimg = context.getImageData(x, y, boxSize, boxSize);
+     
+        let baseimg = context.getImageData(x-padding, y-padding, gensize, gensize);
 
         minicontext.putImageData(baseimg, 0, 0);
 
@@ -191,12 +206,18 @@ function createOtherBox(sid, box) {
 
 function renderImages(images) {
     console.log("all preloaded");
+    let c=0;
     images.forEach(imag => {
 
         // putinCanvas(img);
         //console.log(imag);
-        context.drawImage(imag["img"], imag["x"], imag["y"]);
-
+        if (c==0){
+            context.drawImage(imag["img"], imag["x"], imag["y"]);
+        } else{
+            context.drawImage(imag["img"], imag["x"]-padding, imag["y"]-padding,gensize,gensize);
+        }
+      
+        c++;
     });
 }
 
@@ -246,7 +267,7 @@ function putinCanvas(newimage) {
         base_image = new Image();
         base_image.src = newimage["imguri"];
         base_image.onload = function () {
-            context.drawImage(this, newimage["x"], newimage["y"]);
+            context.drawImage(this, newimage["x"]-padding, newimage["y"]-padding,gensize,gensize);
         }
     }
 }
