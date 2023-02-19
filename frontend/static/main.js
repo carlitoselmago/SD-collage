@@ -33,7 +33,7 @@ var firstloaded=false;
 
 $(document).ready(function () {
     $("#loading").css({"display":"flex"});
-
+    $("#prompter .info.maininfo").show();
     let protocol="http";
     if ($("body").hasClass("ssl")){
         protocol="https";
