@@ -16,6 +16,8 @@ canvas.setAttribute("id", "maincanvas");
 const padding=0; //padding for adding context when inpainting
 const baseSize=512; //size for the images generated
 
+const updateinterval=15000; //in milliseconds
+
 var gensize=baseSize;
 
 if (padding>0){
@@ -40,13 +42,9 @@ $(document).ready(function () {
     }
 
     window.addEventListener('wheel', function (e) {
-
-        e.preventDefault()
-        console.log("touchpad");
-
+        e.preventDefault();
     }, { passive: false })
 
-   
     $("#minicanvas").css("width", gensize + "px");
     $("#minicanvas").css("height", gensize + "px");
     $("#minicanvas").attr("width", gensize);
@@ -87,8 +85,8 @@ $(document).ready(function () {
 
     $("#prompt").on("input", function () {
         boxChange();
-
     });
+
     $("#promptform").submit(function (e) {
         e.preventDefault();
         let box = $("#prompter");
@@ -100,7 +98,6 @@ $(document).ready(function () {
         //boxSize = 512;
 
         //let baseimg = context.getImageData(x, y, boxSize, boxSize);
-     
         let baseimg = context.getImageData(x-padding, y-padding, gensize, gensize);
 
         minicontext.putImageData(baseimg, 0, 0);
@@ -125,30 +122,28 @@ $(document).ready(function () {
         });
     }
 
-
     //SOCKET:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     socket = io.connect(protocol+'://' + document.domain + ':' + location.port);
    
     socket.on('connect', function (data) {
         console.log("connected");
         boxChange("joined");
-        
-
+        const interval = setInterval(function() {
+            socket.emit('getupdates');
+          }, updateinterval);
     });
     socket.on('newimage', function (images) {
-        
+        console.log("newimage!!!");
         if (!firstloaded){
             preloadImages(images);
             firstloaded=true;
         } else {
             updateImages(images);
         }
-      
     });
 
     socket.on('promptready', function (data) {
         //finished prompting
-
         sid = data["sid"];
 
         if (sid === $("#sid").text()) {
@@ -183,19 +178,15 @@ $(document).ready(function () {
     });
 
     socket.on('update', function (data) {
-        // console.log("on update", data);
         manageOthers(data);
         socket.emit('ok');
     });
-
-
 
     function leave_room() {
         socket.emit('left', {}, function () {
             socket.disconnect();
         });
     }
-
 
 });
 function createOtherBox(sid, box) {
@@ -204,20 +195,15 @@ function createOtherBox(sid, box) {
     }
 }
 
-
 function renderImages(images) {
     console.log("all preloaded");
     let c=0;
     images.forEach(imag => {
-
-        // putinCanvas(img);
-        //console.log(imag);
         if (c==0){
             context.drawImage(imag["img"], imag["x"], imag["y"]);
         } else{
             context.drawImage(imag["img"], imag["x"]-padding, imag["y"]-padding,gensize,gensize);
         }
-      
         c++;
     });
     $("#loading").remove();
@@ -228,7 +214,6 @@ function preloadImages(topreload) {
     let images = [];
     let imageCount = 0;
     $("#loadcount").text("0/"+topreload.length);
-    //console.log(topreload);
     topreload.forEach(img => {  // for each image url
         if (loadedimages[img["imguri"]] === undefined) {
             loadedimages[img["imguri"]] = true;
@@ -242,27 +227,19 @@ function preloadImages(topreload) {
                     renderImages(images);
                 }
             }
-
             images.push({ "img": image, "x": parseInt(img["x"]), "y": parseInt(img["y"]) }); // add loading image to images array
         }
     });
 }
 
-
-
-
 function updateImages(images) {
     images.forEach(img => {
-
         if (loadedimages[img["imguri"]] === undefined) {
             loadedimages[img["imguri"]] = true;
             putinCanvas(img);
         }
     });
-
 }
-
-
 
 function putinCanvas(newimage) {
     console.log(newimage["imguri"]);
@@ -288,13 +265,15 @@ function manageOthers(boxes) {
             target.css("left", v["box"][0]);
             target.css("top", v["box"][1]);
             if (v["prompt"] !== undefined){
-            if (v["prompt"].length>0){
-                $(".prompt", target).text(v["prompt"]);
-                if (!target.hasClass("prompting")){
-                    target.addClass("prompting");
+                if (v["prompt"].length>0){
+                    $(".prompt", target).text(v["prompt"]);
+                    if (!target.hasClass("prompting")){
+                        target.addClass("prompting");
+                    }
                 }
+            } else{
+                $("#"+sid).removeClass("prompting");
             }
-        }
            
         } else {
             createOtherBox(sid, v);
@@ -308,25 +287,12 @@ function manageOthers(boxes) {
     });
 }
 
-
-
 function boxChange(label = "boxchange") {
     let text = ($("#prompt").val());
     let target = $("#prompter");
     let x = target.css("left");
     let y = target.css("top");
     socket.emit(label, { "box": [x, y], "prompt": text });
-}
-
-function getClients(roomId = "room") {
-    var clients_in_the_room = io.sockets.adapter.rooms[roomId];
-    for (var clientId in clients_in_the_room) {
-        console.log('client: %s', clientId); // Seeing is believing
-        var client_socket = io.sockets.connected[clientId]; // Do whatever you want with this
-        console.log(client_socket);
-    }
-
-
 }
 
 function sessionIdToEmoji(sessionId) {

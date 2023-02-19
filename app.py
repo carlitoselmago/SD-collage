@@ -83,12 +83,11 @@ def joined(message):
     print("JOINED!")
     """Sent by clients when they enter a room.
     A status message is broadcast to all people in the room."""
-    room="collage"
-    join_room(room)
     sid=request.sid
+    join_room(sid)
+   
     session["sid"]=sid
-    session['room']=room
-    print("room",room)
+    session['room']=sid
 
     users[sid]={"box":message["box"]}
     msg='user '+str(sid)+'has entered the room.'
@@ -99,19 +98,23 @@ def joined(message):
         print(u)
     print("")
     emit("yoursid",{"sid":sid})
-    usersExceptMe(room)
+    usersExceptMe()
     updateImages()
 
-    socketio.start_background_task(target=periodic_emit)
+    #socketio.start_background_task(target=periodic_emit)
     #emit('status', users, room=room)
 
 @socketio.on('ok')
 def recieved():
     pass
 
+@socketio.on('getupdates')
+def getupdates():
+    print("asked for updates from",request.sid)
+    socketio.emit('update', users , room=request.sid)
+
 @socketio.on('prompt')
 def prompt(message):
-    room = session.get('room')
     p=message["prompt"]
     x=message["x"]
     y=message["y"]
@@ -119,36 +122,26 @@ def prompt(message):
     print("")
     print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
     print("prompt:",p,"by:",sid)
-    #print("baseimg",message["baseimg"])
     print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
     print("SID",sid,"=======================================================")
-    #print("new prompt",message)
-    #imageid=IG.generateImage(p,x=x,y=y,room=room)
-    #imageid=IG.generateImage2Image(p,startimage=message["baseimg"],x=x,y=y,room=room)
-    imageid=IG.generateImage(p,startimage=message["baseimg"],x=x,y=y,room=room)
+    imageid=IG.generateImage(p,startimage=message["baseimg"],x=x,y=y,room=sid)
     print("new image",imageid)
     print("")
     newimage={"imguri":imagesfolder+imageid+".jpg","x":x,"y":y}
     images.append(newimage)
     del users[sid]["prompt"]
-    emit("promptready",{"sid":sid},room=room)
+    emit("promptready",{"sid":sid},room=sid)
     updateImages()
     
 
 @socketio.on('boxchange')
 def text(message):
     sid=request.sid
-    
-    """Sent by a client
-    The message is sent to all people in the room."""
-    room = session.get('room')
-    
-    move={"sid":sid,"box":message}
-   
+    #move={"sid":sid,"box":message}
     users[sid]["box"]=message["box"]
     users[sid]["prompt"]=message["prompt"]
-    usersExceptMe(room)
-    #emit('message', move, room=room)
+    usersExceptMe()
+
 
 @socketio.on('ghostuser')
 def setghostuser():
@@ -158,9 +151,9 @@ def setghostuser():
 def left(message):
     """Sent by clients when they leave a room.
     A status message is broadcast to all people in the room."""
-    room = session.get('room')
-    leave_room(room)
-    emit('status', {'msg': session.get('name') + ' has left the room.'}, room=room)
+
+    leave_room(request.sid)
+    emit('status', {'msg': session.get('name') + ' has left the room.'})
 
 
 @socketio.on('disconnect')
@@ -181,25 +174,19 @@ def my_ping():
 ## FUNCTIONS ::::::::::::::::::::::::::::::::::::::::::
 
 
-
+"""
 def periodic_emit():
     while True:
-        #print("updatee")
+        print("updatee")
         socketio.sleep(25)
-        usersExceptMe("collage")
-
-"""
-timer1 = threading.Thread(target=periodic_emit)
-timer1.start()
+        usersExceptMe()
 """
 
-def usersExceptMe(room):
-    
-    socketio.emit('update', users , room=room,namespace='/')
+def usersExceptMe():
+    socketio.emit('update', users , broadcast=True,include_self=False)
 
 def updateImages():
-    room = session.get('room')
-    emit('newimage', images , room=room)
+    emit('newimage', images,broadcast=True )
 
 if __name__ == '__main__':
     if args.runinssl:
