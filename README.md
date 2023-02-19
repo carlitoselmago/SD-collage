@@ -26,10 +26,9 @@ add ?mode=streamer to your browser to enable auto zooming on prompting action an
 - With padding active, images on border are wrongly generated (fixed temporarelly with 0 padding)
 
 ## Future features
-- Loading info while first load
-- add a way to express some love to the creations while happening
 - Last prompt button: remember last prompt and put it on a button next to the prompt input
 - Scaling mode: Prompter box starts big, and as time passes prompter box becomes smaller to focus on inpainting detail
 - Some kind of planned subject that includes a prefix/sufix hidden prompt (e.g. Isometric)
+- add a way to express some love to the creations while happening
 - Add mask brush?
 

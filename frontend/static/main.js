@@ -32,6 +32,7 @@ var loadedimages = {};
 var firstloaded=false;
 
 $(document).ready(function () {
+    $("#loading").css({"display":"flex"});
 
     let protocol="http";
     if ($("body").hasClass("ssl")){
@@ -219,6 +220,7 @@ function renderImages(images) {
       
         c++;
     });
+    $("#loading").remove();
 }
 
 function preloadImages(topreload) {

@@ -185,6 +185,21 @@ body.streamer #inputs,body.streamer #me,body.streamer #prompter{
     display: block;
 }
 
+#loading{
+    width: 100%;
+    height: 100%;
+    background-color: dimgray;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    z-index: 10;
+    color: white;
+    font-weight: 100;
+    text-align: center;
+    display: none;
+}
+
 @media (max-width: 980px) {
     #promptform {
         justify-content: space-between;
