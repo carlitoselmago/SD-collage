@@ -5,7 +5,7 @@
 ## Stable diffusion backend
 Using https://github.com/AUTOMATIC1111/stable-diffusion-webui
 
-run before starting collage server
+run sd api before starting collage server (automatic111)
 bash webui.sh --nowebui --port 7861 --xformers
 
 then:
@@ -21,9 +21,8 @@ python app.py -ssl #this will run the server in SSL mode (use certbot or similia
 add ?mode=streamer to your browser to enable auto zooming on prompting action and ghost mode (no prompter box active)
 
 ## Bugs / improvements
-- Install xformers for SD
 - Sometimes images never get back to frontend
-- With padding active, images on border are wrongly generated (fixed temporarelly with 0 padding)
+- With padding active, images on border are wrongly generated (fixed temporarily with 0 padding)
 
 ## Future features
 - Last prompt button: remember last prompt and put it on a button next to the prompt input

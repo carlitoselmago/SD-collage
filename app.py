@@ -10,8 +10,8 @@ from PIL import Image
 #defaults:::::::::::::::::::::::::::::::::::::::::::
 
 defaults={
-    "width":3600,
-    "height":2800,
+    "width":6600,
+    "height":4000,
     "firstimagewait":0
 }
 
@@ -110,7 +110,7 @@ def recieved():
 
 @socketio.on('getupdates')
 def getupdates():
-    print("asked for updates from",request.sid)
+    #print("asked for updates from",request.sid)
     socketio.emit('update', users , room=request.sid)
 
 @socketio.on('prompt')

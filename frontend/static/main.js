@@ -2,13 +2,13 @@ window.sid = false;
 window.firstpaint = true
 
 const canvasContainer = document.getElementById('canvas');
-
+const cont='2d';
 const canvasWidth = $("body").attr("width");
 const canvasHeight = $("body").attr("height");
 const firstimagewait = parseInt($("body").attr("firstimagewait"));
 
 const canvas = document.createElement('canvas');
-const context = canvas.getContext('2d', { willReadFrequently: true });
+const context = canvas.getContext(cont, { willReadFrequently: true });
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 canvas.setAttribute("id", "maincanvas");
@@ -51,7 +51,7 @@ $(document).ready(function () {
     $("#minicanvas").attr("height",gensize);
 
     const minicanvas = document.getElementById('minicanvas');
-    const minicontext = minicanvas.getContext('2d', { willReadFrequently: true });
+    const minicontext = minicanvas.getContext(cont, { willReadFrequently: true });
 
     let initialScale=1.5;
     if ($("body").hasClass("streamer")){
@@ -133,7 +133,10 @@ $(document).ready(function () {
           }, updateinterval);
     });
     socket.on('newimage', function (images) {
-        console.log("newimage!!!");
+        //console.log("newimage!!!",images);
+        if (images.length==0){
+            $("#loading").remove();
+        }
         if (!firstloaded){
             preloadImages(images);
             firstloaded=true;
@@ -200,6 +203,7 @@ function renderImages(images) {
     let c=0;
     images.forEach(imag => {
         if (c==0){
+            //drawImage(context,imag["img"], imag["x"], imag["y"]);
             context.drawImage(imag["img"], imag["x"], imag["y"]);
         } else{
             context.drawImage(imag["img"], imag["x"]-padding, imag["y"]-padding,gensize,gensize);
@@ -314,3 +318,4 @@ function sessionIdToEmoji(sessionId) {
     let emoji = emojiList[emojiIndex];
     return emoji;
 }
+

@@ -10,7 +10,6 @@ import skimage
 import skimage.measure
 
 import cv2
-from backend.utils import *
 
 class imageGenerator():
 
@@ -20,9 +19,6 @@ class imageGenerator():
         self.savefolder=savefolder
         self.STATIC_MASK = Image.open("mask.png")
         #self.STATIC_MASK=self.pil_to_base64(STATIC_MASK)
-
- 
-      
 
     def loadModel(self):
         pass 
@@ -71,6 +67,7 @@ class imageGenerator():
         image_cfg_scale=15
         denoising_strength=0.6
         seed= int(time.time())
+        inpainting_fill=0
 
         if self.count_alpha_pixels(startimage)>29800:
         #if self.im_has_alpha(startimage):
@@ -82,6 +79,7 @@ class imageGenerator():
             #startimage = startimage[:, :, 0:3]
             #startimage,maskedimage=self.applyMask(startimage)
             inpaint_full_res=False
+            inpainting_fill=0
         else:
             print("DOESNT HAVE ANY ALPHA")
             #load a template mask
@@ -89,9 +87,9 @@ class imageGenerator():
             #maskedimage_invert=(maskedimage.convert('L'))
             inpaint_full_res=True
             image_cfg_scale=25
-            denoising_strength=0.8
+            denoising_strength=0.7
             #steps=25
-
+            inpainting_fill=1
             
             """
             startimage=(self.rgba2rgb(self.dataurl_to_pil(preimage)))
@@ -116,12 +114,12 @@ class imageGenerator():
         payload = {
             "init_images": [preimage],#[self.pil_to_base64(startimage)],
             "mask":self.pil_to_base64(maskedimage),
-            #"mask_blur":8,
+            "mask_blur":8,
             
          
             #"initial_noise_multiplier":5,
            # "inpainting_fill": 0,
-           "inpainting_fill":1,
+           "inpainting_fill":inpainting_fill,
             "inpaint_full_res": inpaint_full_res,
             #"inpaint_full_res_padding":52,
             "image_cfg_scale":image_cfg_scale,
@@ -141,8 +139,6 @@ class imageGenerator():
         filename=str(time.time() * 1000).replace('.', '')+"_"+str(x)+"_"+str(y)
         fileuri = self.savefolder+(filename)+'.jpg'  # I assume you have a way of picking unique filenames
         im.save(fileuri)
-        #with open(fileuri, 'wb') as f:
-        #    f.write(imgdata)
         return filename
 
     def applyMask(self,img):
@@ -173,16 +169,6 @@ class imageGenerator():
         # The data is encoded as base64, so we decode it.
         data = base64.b64decode(data) 
         return Image.open(io.BytesIO(data))
-        """
-        # Open a bytes file object
-        with io.BytesIO() as f:
-            # write the svg data as a png to file object
-            svg2png(bytestring=data, write_to=f)
-
-            # read the file object with PIL and display
-            return f
-        """
-
 
     def detect_white_mask(self,image):
         # Convert the PIL image to a numpy array
