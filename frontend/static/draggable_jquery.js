@@ -32,8 +32,10 @@
         parentScale = parent.css("transform");
         parentScale = parseFloat(parentScale.split(",")[3]) || 1;
 
-        element.css("left", Math.round((touch.clientX - startX) / parentScale / steps) * steps + startLeft);
-        element.css("top", Math.round((touch.clientY - startY) / parentScale / steps) * steps + startTop);
+        manageMove(touch,parentScale,startX,startY,startLeft,startTop);
+
+        //element.css("left", Math.round((touch.clientX - startX) / parentScale / steps) * steps + startLeft);
+        //element.css("top", Math.round((touch.clientY - startY) / parentScale / steps) * steps + startTop);
 
         settings.onmove.call(element, e);
       });
@@ -56,9 +58,7 @@
         parentScale = parent.css("transform");
         parentScale = parseFloat(parentScale.split(",")[3]) || 1;
 
-        element.css("left", Math.round((e.clientX - startX) / parentScale / steps) * steps + startLeft);
-        element.css("top", Math.round((e.clientY - startY) / parentScale / steps) * steps + startTop);
-
+        manageMove(e,parentScale,startX,startY,startLeft,startTop);
         settings.onmove.call(element, e);
       });
 
@@ -67,6 +67,28 @@
         $(document).off("mouseup");
         settings.onstop.call(element);
       });
+
+    
     });
+    
+    var manageMove =function(e,parentScale,startX,startY,startLeft,startTop){
+      var newLeft = Math.round((e.clientX - startX) / parentScale / steps) * steps + startLeft;
+      var newTop = Math.round((e.clientY - startY) / parentScale / steps) * steps + startTop;
+      
+      // Ensure that the dragged element cannot be placed outside the boundaries of the parent element
+      if (newLeft < 0) {
+        newLeft = 0;
+      } else if (newLeft > parent.width() - element.width()) {
+        newLeft = parent.width() - element.width();
+      }
+      if (newTop < 0) {
+        newTop = 0;
+      } else if (newTop > parent.height() - element.height()) {
+        newTop = parent.height() - element.height();
+      }
+
+      element.css("left", newLeft);
+      element.css("top", newTop);
+    }
   };
 }(jQuery));

@@ -86,10 +86,10 @@ class imageGenerator():
             print("DOESNT HAVE ANY ALPHA")
             #load a template mask
             maskedimage=self.STATIC_MASK
-            maskedimage_invert=(maskedimage.convert('L'))
+            #maskedimage_invert=(maskedimage.convert('L'))
             inpaint_full_res=True
-            #image_cfg_scale=25
-            denoising_strength=0.7
+            image_cfg_scale=25
+            denoising_strength=0.8
             steps=25
 
             
@@ -110,8 +110,8 @@ class imageGenerator():
             maskedimage = Image.fromarray(mask)
             """
         
-        startimage.save("test.png")
-        maskedimage.save("test2.png")
+        #startimage.save("test.png")
+        #maskedimage.save("test2.png")
 
         payload = {
             "init_images": [preimage],#[self.pil_to_base64(startimage)],

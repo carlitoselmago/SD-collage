@@ -13,7 +13,7 @@ canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 canvas.setAttribute("id", "maincanvas");
 
-const padding=100; //padding for adding context when inpainting
+const padding=0; //padding for adding context when inpainting
 const baseSize=512; //size for the images generated
 
 var gensize=baseSize;
