@@ -199,7 +199,10 @@ body.streamer #inputs,body.streamer #me,body.streamer #prompter{
     text-align: center;
     display: none;
 }
-
+#loadcount{
+    font-weight: 100;
+    font-size: 73px;
+}
 @media (max-width: 980px) {
     #promptform {
         justify-content: space-between;

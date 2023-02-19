@@ -227,7 +227,7 @@ function preloadImages(topreload) {
     console.log("preloadimages")
     let images = [];
     let imageCount = 0;
-
+    $("#loadcount").text("0/"+topreload.length);
     //console.log(topreload);
     topreload.forEach(img => {  // for each image url
         if (loadedimages[img["imguri"]] === undefined) {
@@ -236,6 +236,7 @@ function preloadImages(topreload) {
             image.src = img["imguri"];
             image.onload = () => {
                 imageCount += 1;
+                $("#loadcount").text((imageCount+1)+"/"+topreload.length);
                 //console.log(imageCount,topreload.length);
                 if (imageCount === topreload.length) { // have all loaded????
                     renderImages(images);
