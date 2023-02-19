@@ -6,7 +6,7 @@
 Using https://github.com/AUTOMATIC1111/stable-diffusion-webui
 
 run before starting collage server
-bash webui.sh --nowebui --port 7861
+bash webui.sh --nowebui --port 7861 --xformers
 
 then:
 
@@ -29,6 +29,6 @@ add ?mode=streamer to your browser to enable auto zooming on prompting action an
 - Last prompt button: remember last prompt and put it on a button next to the prompt input
 - Scaling mode: Prompter box starts big, and as time passes prompter box becomes smaller to focus on inpainting detail
 - Some kind of planned subject that includes a prefix/sufix hidden prompt (e.g. Isometric)
-- add a way to express some love to the creations while happening
+- add a way to express some love to other users creations while happening
 - Add mask brush?
 

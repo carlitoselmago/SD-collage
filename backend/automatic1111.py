@@ -90,7 +90,7 @@ class imageGenerator():
             inpaint_full_res=True
             image_cfg_scale=25
             denoising_strength=0.8
-            steps=25
+            #steps=25
 
             
             """
