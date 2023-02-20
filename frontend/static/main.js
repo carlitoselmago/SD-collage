@@ -8,10 +8,22 @@ const canvasHeight = $("body").attr("height");
 const firstimagewait = parseInt($("body").attr("firstimagewait"));
 
 const canvas = document.createElement('canvas');
-const context = canvas.getContext(cont, { willReadFrequently: true });
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 canvas.setAttribute("id", "maincanvas");
+const context = canvas.getContext(cont, { willReadFrequently: true });
+
+//check canvas size
+var isValidCanvas = canvasSize.test({
+    width : canvasWidth,
+    height: canvasHeight
+  });
+
+if (!isValidCanvas){
+    $("#killer h1").text("Your browser does not support this canvas size, please use a desktop browser like Firefox/Chrome/Edge")
+    $("#killer").css({"display":"flex"});
+}
+
 
 const padding=0; //padding for adding context when inpainting
 const baseSize=512; //size for the images generated
@@ -206,11 +218,13 @@ function renderImages(images) {
             //drawImage(context,imag["img"], imag["x"], imag["y"]);
             context.drawImage(imag["img"], imag["x"], imag["y"]);
         } else{
-            context.drawImage(imag["img"], imag["x"]-padding, imag["y"]-padding,gensize,gensize);
+            context.drawImage(imag["img"], imag["x"]-padding, imag["y"]-padding);
+           // context.drawImage(imag["img"], imag["x"]-padding, imag["y"]-padding,gensize,gensize);
         }
         c++;
     });
     $("#loading").remove();
+    delete images;
 }
 
 function preloadImages(topreload) {
@@ -243,6 +257,7 @@ function updateImages(images) {
             putinCanvas(img);
         }
     });
+    delete images;
 }
 
 function putinCanvas(newimage) {

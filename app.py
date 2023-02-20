@@ -6,12 +6,16 @@ from threading import Timer
 import time
 import argparse
 from PIL import Image
+from lib.utils import *
 
 #defaults:::::::::::::::::::::::::::::::::::::::::::
 
+#estimated max pixel area for desktop =117000000px (13000x9000)
+#estimated max pixel are for mobile = 64000000px (8000x8000)
+
 defaults={
-    "width":6600,
-    "height":4000,
+    "width":8000,
+    "height":8000,
     "firstimagewait":0
 }
 
@@ -35,14 +39,6 @@ images=[]
 
 #load images from folder (doesn't take yet room into account)
 
-imgs=glob.glob(imagesfolder+"*.jpg")
-imgs.sort(key=str.lower)
-print("IMAGESSS",imgs)
-for file in imgs:
-    img=file.split("_")
-    newimage={"imguri":file,"x":img[1],"y":img[2].split(".")[0]} 
-    images.append(newimage)
-#print("IMAGES",images)
 
 parser = argparse.ArgumentParser( prog = 'SD-collage')
 parser.add_argument('-s', '--startimage',action='store_true')
@@ -52,15 +48,24 @@ args = parser.parse_args()
 if args.startimage:
     imgs=os.listdir(imagesfolder)
     imgs.sort(key=str.lower)
-    firstimage=imgs[0]
-    print("Grabbing the first image as background template:",firstimage)
-    firstimagesize=Image.open(imagesfolder+firstimage).size
+    bgimage=imgs[0]
+    #print("Grabbing the first image as background template:",bgimage)
+    bgimage=Image.open(imagesfolder+bgimage)#args.startimage)
+    #tileImage(bgimage)
     defaults={
-        "width":firstimagesize[0],
-        "height":firstimagesize[1],
+        "width":bgimage.size[0],
+        "height":bgimage.size[1],
         "firstimagewait":300 #in milliseconds
     }
+    del bgimage
 
+imgs=glob.glob(imagesfolder+"*.jpg")
+imgs.sort(key=str.lower)
+#print("IMAGESSS",imgs)
+for file in imgs:
+    img=file.split("_")
+    newimage={"imguri":file,"x":img[1],"y":img[2].split(".")[0]} 
+    images.append(newimage)
 
 
 @app.route('/')

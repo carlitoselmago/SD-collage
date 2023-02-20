@@ -14,7 +14,7 @@
 </head>
 
 <body class="{{ defaults.mode }} {{ defaults.ssl }}" width="{{ defaults.width }}" height="{{ defaults.height }}" firstimagewait="{{defaults.firstimagewait}}"">
-    
+    <div id="killer"><h1>Text here</h1></div>
     <div id="wrap">
         <div id="sid"></div>
             <div id="me"></div>
@@ -44,7 +44,8 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
-
+    <!-- Global "canvasSize" (latest v1.x.x) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-size@1"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='draggable_jquery.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='panzoom_jquery.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='streamer_jquery.js') }}"></script>
