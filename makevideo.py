@@ -2,45 +2,15 @@ import cv2
 import argparse
 import glob,os
 import moviepy.video.io.ImageSequenceClip
+import shutil
+from lib.utils import *
 
-def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
-    # initialize the dimensions of the image to be resized and
-    # grab the image size
-    dim = None
-    (h, w) = image.shape[:2]
-
-    # if both the width and height are None, then return the
-    # original image
-    if width is None and height is None:
-        return image
-
-    # check to see if the width is None
-    if width is None:
-        # calculate the ratio of the height and construct the
-        # dimensions
-        r = height / float(h)
-        dim = (int(w * r), height)
-
-    # otherwise, the height is None
-    else:
-        # calculate the ratio of the width and construct the
-        # dimensions
-        r = width / float(w)
-        dim = (width, int(h * r))
-
-    # resize the image
-    resized = cv2.resize(image, dim, interpolation = inter)
-
-    # return the resized image
-    return resized,dim
 
 parser = argparse.ArgumentParser( prog = 'collage-makevideo')
-parser.add_argument('-f', '--imagesfolder')
+parser.add_argument('-f', '--imagesfolder',required=True)
 parser.add_argument('-vw', '--width',nargs='?',default=3840,const=1,type=int)
 parser.add_argument('-vh', '--height',nargs='?',default=2160,const=1,type=int)
 args = parser.parse_args()
-
-
 
 if not args.imagesfolder:
     print("Error, No image folder provided, see arguments with -h")
@@ -78,7 +48,7 @@ else:
     for i,image in enumerate(images):
         frame= cv2.imread(image["imguri"])
         if i>0:
-            print("frame",i)
+            #print("frame",i)
             scale=bg_w/dim[0]
             (p_h, p_w) = frame.shape[:2]
             w=int(p_w/scale)
@@ -88,23 +58,24 @@ else:
             #put image in canvas
             x_offset=int(image["x"]/scale)
             y_offset=int(image["y"]/scale)
-            canvas[y_offset:y_offset+resized.shape[0], x_offset:x_offset+resized.shape[1]] = resized
+            try:
+                canvas[y_offset:y_offset+resized.shape[0], x_offset:x_offset+resized.shape[1]] = resized
+            except:
+                print("error with",image["imguri"])
+                print("resized shape",resized.shape,"x_offset",x_offset,"y_offset",y_offset)
             imguri=tmpfolder+"/"+str(i)+".jpg"
             cv2.imwrite(imguri,canvas)
             uris.append(imguri)
 
-        #video.write(frame)
+#add some static time at the end
+for i in range(10):
+    uris.append(imguri)
 
-    #cv2.destroyAllWindows()
-    #video.release()
-
-print("frames ready, converting to movie")
+print("")
+print("frames ready, converting to movie, this might take a while")
 fps=4
 clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(uris, fps=fps)
 clip.write_videofile(args.imagesfolder+'/collage.mp4')
 
-"""
-s_img = cv2.imread("smaller_image.png")
-l_img = cv2.imread("larger_image.jpg")
-
-"""
+#delete tmp folder
+shutil.rmtree(tmpfolder)
