@@ -7,7 +7,10 @@ import time
 import argparse
 from PIL import Image
 from lib.utils import *
+from engineio.payload import Payload
+import requests
 
+Payload.max_decode_packets = 40
 #defaults:::::::::::::::::::::::::::::::::::::::::::
 
 #estimated max pixel area for desktop =117000000px (13000x9000)
@@ -28,22 +31,22 @@ STATIC_DIR = os.path.abspath('frontend/static')
 from backend.automatic1111 import imageGenerator
 async_mode = None
 app = Flask(__name__,template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
-socketio = SocketIO(app,ping_timeout=25,ping_interval=5,max_http_buffer_size=1e9,async_mode=async_mode)
+socketio = SocketIO(app,ping_timeout=60,ping_interval=25,max_http_buffer_size=1e9,async_mode=async_mode)
 
 imagesfolder="images/"
 
-IG=imageGenerator(imagesfolder)
+
 
 users={}
 images=[]
 
-#load images from folder (doesn't take yet room into account)
-
-
 parser = argparse.ArgumentParser( prog = 'SD-collage')
-parser.add_argument('-s', '--startimage',action='store_true')
+parser.add_argument('-s', '--startimage',action='store_true',help='If true, use first image found as bg image')
 parser.add_argument('-ssl', '--runinssl',action='store_true')
+parser.add_argument('-url', '--sdengineurl',help='Especifies the url of the sd generator')
 args = parser.parse_args()
+
+IG=imageGenerator(imagesfolder,args.sdengineurl,args.sdengineurl)
 
 if args.startimage:
     imgs=os.listdir(imagesfolder)
@@ -59,14 +62,14 @@ if args.startimage:
     }
     del bgimage
 
+
 imgs=glob.glob(imagesfolder+"*.jpg")
 imgs.sort(key=str.lower)
 #print("IMAGESSS",imgs)
 for file in imgs:
     img=file.split("_")
-    newimage={"imguri":file,"x":img[1],"y":img[2].split(".")[0]} 
+    newimage={"imguri":file,"x":img[1],"y":img[2].split(".")[0]}
     images.append(newimage)
-
 
 @app.route('/')
 def main():
@@ -74,6 +77,8 @@ def main():
     defaults["mode"]=mode
     if args.runinssl:
         defaults["mode"]+=" ssl"
+    if args.startimage:
+        defaults["mode"]+=" startimage"
     return render_template('index.html',defaults=defaults)
 
 @app.route('/images/<path:filename>')
@@ -90,7 +95,7 @@ def joined(message):
     A status message is broadcast to all people in the room."""
     sid=request.sid
     join_room(sid)
-   
+
     session["sid"]=sid
     session['room']=sid
 
@@ -113,6 +118,13 @@ def joined(message):
 def recieved():
     pass
 
+@socketio.on('backendstatus')
+def backendstatus():
+    #x = threading.Thread(target=isUp, args=(args.sdengineurl,socketio,))
+    #x.start()
+    status=isUp(args.sdengineurl,socketio,request.sid)
+    #socketio.emit('backendresponse', {"status":status})#, room=request.sid)
+
 @socketio.on('getupdates')
 def getupdates():
     #print("asked for updates from",request.sid)
@@ -130,14 +142,21 @@ def prompt(message):
     print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
     print("SID",sid,"=======================================================")
     imageid=IG.generateImage(p,startimage=message["baseimg"],x=x,y=y,room=sid)
-    print("new image",imageid)
-    print("")
-    newimage={"imguri":imagesfolder+imageid+".jpg","x":x,"y":y}
-    images.append(newimage)
+    print("imageid",imageid)
+    status=True
+    if imageid=="":
+        status=False
+    else:
+        print("new image",imageid)
+        print("")
+        newimage={"imguri":imagesfolder+imageid+".jpg","x":x,"y":y}
+        images.append(newimage)
+
+    print("generated image status",status)
     del users[sid]["prompt"]
-    emit("promptready",{"sid":sid},room=sid)
+    emit("promptready",{"sid":sid,"status":status},room=sid)
     updateImages()
-    
+
 
 @socketio.on('boxchange')
 def text(message):
@@ -164,7 +183,10 @@ def left(message):
 @socketio.on('disconnect')
 def disconnect():
     print("user",request.sid," disconected")
-    del users[request.sid]
+    try:
+        del users[request.sid]
+    except:
+        pass
     emit("disconected",{"sid":request.sid})
 
 
@@ -193,8 +215,23 @@ def usersExceptMe():
 def updateImages():
     emit('newimage', images,broadcast=True )
 
+def isUp(url,socketio,sid):
+    url+="/docs"
+    print(url)
+    status=False
+    try:
+        response=requests.get(url,timeout=1)
+        print("=====================",response,url)
+        if response.status_code==200:
+            status=True
+    except:
+        pass
+    print("STATUS",status,"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+    socketio.emit('backendresponse', {"status":status},room=sid)
+    #return status
+
 if __name__ == '__main__':
     if args.runinssl:
-        socketio.run(app,debug=True,host="0.0.0.0",keyfile='key.pem', certfile='cert.pem')
+        socketio.run(app,debug=False,host="0.0.0.0",keyfile='key.pem', certfile='cert.pem')
     else:
-        socketio.run(app,debug=True,host="0.0.0.0")
+        socketio.run(app,debug=False,host="0.0.0.0")

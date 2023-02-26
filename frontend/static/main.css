@@ -6,7 +6,7 @@ html {
 
 body {
     background-color: lightgray;
-   
+
     margin: 0px;
     width: 100%;
     height: 100%;
@@ -70,7 +70,9 @@ body *{
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
 }
-
+body.startimage .box{
+  border-color: white;
+}
 .otherbox {
     left: 0px;
     top: 0px;
@@ -137,7 +139,7 @@ body *{
     transition: all 400ms ease-in-out;
 }
 
-#inputs.busy {
+#inputs.busy,body.enginedown #inputs {
 
     bottom: -100px;
 
@@ -199,7 +201,7 @@ body.streamer #inputs,body.streamer #me,body.streamer #prompter{
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 80px;
+    font-size: 180px;
     z-index: 10;
     color: white;
     font-weight: 100;
@@ -208,7 +210,7 @@ body.streamer #inputs,body.streamer #me,body.streamer #prompter{
 }
 #loadcount{
     font-weight: 100;
-    font-size: 73px;
+    font-size: 263px;
 }
 #killer{
     position: fixed;
@@ -225,6 +227,12 @@ body.streamer #inputs,body.streamer #me,body.streamer #prompter{
 }
 #killer h1{
     font-size: 28px;
+}
+body.enginedown{
+background-color: black;
+}
+body.enginedown #me,body.enginedown .box{
+display: none !important;
 }
 @media (max-width: 980px) {
     #promptform {

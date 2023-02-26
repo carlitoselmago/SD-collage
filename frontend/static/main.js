@@ -70,7 +70,7 @@ $(document).ready(function () {
         console.log("streamer mode");
         initialScale=1.1;
     }
-    
+
     $("#prompt").focus();
 
     $("#prompter").on("click", function (e) {
@@ -106,7 +106,7 @@ $(document).ready(function () {
         let x = parseInt(target.css("left"));
         let y = parseInt(target.css("top"));
         let prompt = $("#prompt").val();
-       
+
         //boxSize = 512;
 
         //let baseimg = context.getImageData(x, y, boxSize, boxSize);
@@ -136,16 +136,22 @@ $(document).ready(function () {
 
     //SOCKET:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     socket = io.connect(protocol+'://' + document.domain + ':' + location.port);
-   
+
     socket.on('connect', function (data) {
         console.log("connected");
         boxChange("joined");
+        setTimeout(() => {
+          socket.emit("backendstatus");
+        }, 1000);
+
+        console.log("asking for status")
         const interval = setInterval(function() {
             socket.emit('getupdates');
           }, updateinterval);
     });
     socket.on('newimage', function (images) {
         //console.log("newimage!!!",images);
+        console.log("new images socket")
         if (images.length==0){
             $("#loading").remove();
         }
@@ -157,22 +163,39 @@ $(document).ready(function () {
         }
     });
 
+    socket.on('backendresponse', function (data) {
+      //console.log("backend status response",data)
+      console.log("backendresponse",data["status"]);
+      if (data["status"]===false){
+        engineDown();
+      } else {
+        engineUp();
+      }
+
+    });
+
+
     socket.on('promptready', function (data) {
         //finished prompting
-        sid = data["sid"];
-
-        if (sid === $("#sid").text()) {
+        console.log("promptready",data,data["status"])
+        if (!data["status"]) {
+          console.log("MARK STATUS DOWN!!!!");
+          $("#prompt").val("");
+          engineDown();
+        }
+        if (data["sid"] === $("#sid").text()) {
             $("#prompter .info.maininfo").show();
             $("#prompter .info.busyinfo").hide();
             $("#inputs").removeClass("busy");
-            console.log("its my prompt!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", sid)
+            console.log("its my prompt!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", data["sid"])
             $("#prompt").val("");
         } else {
-            console.log("finished prompt for other",sid)
-            $("#"+sid+" .prompt").text("");
-            $("#"+sid).removeClass("prompting");
+            console.log("finished prompt for other",data["sid"])
+            $("#"+data["sid"]+" .prompt").text("");
+            $("#"+data["sid"]).removeClass("prompting");
         }
     });
+
     socket.on('status', function (data) {
 
     });
@@ -197,6 +220,10 @@ $(document).ready(function () {
         socket.emit('ok');
     });
 
+    socket.on("disconnect", () => {
+    //  console.log(socket.id); // undefined
+    });
+
     function leave_room() {
         socket.emit('left', {}, function () {
             socket.disconnect();
@@ -216,7 +243,7 @@ function renderImages(images) {
     images.forEach(imag => {
         if (c==0){
             //drawImage(context,imag["img"], imag["x"], imag["y"]);
-            context.drawImage(imag["img"], imag["x"], imag["y"]);
+            context.drawImage(imag["img"], imag["x"], imag["y"],canvasWidth,canvasHeight);
         } else{
             context.drawImage(imag["img"], imag["x"]-padding, imag["y"]-padding);
            // context.drawImage(imag["img"], imag["x"]-padding, imag["y"]-padding,gensize,gensize);
@@ -293,7 +320,7 @@ function manageOthers(boxes) {
             } else{
                 $("#"+sid).removeClass("prompting");
             }
-           
+
         } else {
             createOtherBox(sid, v);
         }
@@ -334,3 +361,38 @@ function sessionIdToEmoji(sessionId) {
     return emoji;
 }
 
+function engineUp(){
+  if ($("body").hasClass("enginedown")){
+    $("body").removeClass("enginedown");
+    var toast = document.querySelector('.iziToast');
+    if (toast){
+      iziToast.hide({}, toast);
+    }
+    iziToast.show({
+        //title: '',
+        message: 'Image generator engine is restored, you can prompt now',
+        position: "topCenter",
+        //timeout:false,
+        displayMode:"replace"
+    });
+  }
+}
+
+function engineDown(){
+
+  if (!$("body").hasClass("enginedown")){
+    iziToast.show({
+        //title: '',
+        message: 'Image generator engine is down',
+        position: "topCenter",
+        timeout:false,
+        displayMode:"replace"
+    });
+  }
+  $("body").addClass("enginedown");
+
+  setTimeout(() => {
+    console.log("checking again for backend status");
+    socket.emit("backendstatus");
+  }, 20000);
+}

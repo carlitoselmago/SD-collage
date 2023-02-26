@@ -1,5 +1,8 @@
 flask
 flask_socketio
+requests
+scikit-image
 gevent
 eventlet
+Pillow
 moviepy

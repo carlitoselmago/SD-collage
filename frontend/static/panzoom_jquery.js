@@ -109,7 +109,7 @@
         lastTouchDistance = Math.hypot(touch1.pageX - touch2.pageX, touch1.pageY - touch2.pageY);
       }
     });
-    
+
     $parent.on('touchend', function () {
       $parent.off('touchmove');
       settings.onstop.call($parent);
@@ -127,6 +127,17 @@
         });
       }
     });
+
+    // Zoom in using double click
+  $parent.on('dblclick', function (e) {
+    var zoom = 1.5;
+    currentScale *= zoom;
+    currentTranslate.x = currentTranslate.x * zoom + (1 - zoom) * e.pageX;
+    currentTranslate.y = currentTranslate.y * zoom + (1 - zoom) * e.pageY;
+    $element.css({
+      'transform': 'translate(' + currentTranslate.x + 'px, ' + currentTranslate.y + 'px) scale(' + currentScale + ')'
+    });
+  });
 
     return this;
   };

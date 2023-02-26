@@ -15,18 +15,28 @@ class imageGenerator():
 
     negative_prompt="text, letters"
 
-    def __init__(self,savefolder=""): 
+    def __init__(self,savefolder="",url="",bgimage=False):
+        if not url:
+            url="http://127.0.0.1:7861"
+        self.url=url
         self.savefolder=savefolder
         self.STATIC_MASK = Image.open("mask.png")
+        self.bgimage=bgimage
+
         #self.STATIC_MASK=self.pil_to_base64(STATIC_MASK)
 
     def loadModel(self):
-        pass 
-    
+        pass
+
     def generateImage(self,prompt="",startimage="",steps=12,x=0,y=0,room=""):
         img=self.dataurl_to_pil(startimage)
         extrema = img.convert("L").getextrema()
-        if extrema[0] == extrema[1]:
+        itssolid=False
+        if not self.bgimage:
+            if extrema[0] == extrema[1]:
+                itssolid=True
+
+        if itssolid:
             print("ITS A SOLID COLOR!!!!!!!!!!!!!!!!!!!!!!!!!")
             #This image is one solid color
             return self.generateImageText2Image(prompt,steps=steps,x=x,y=y,room=room)
@@ -44,7 +54,8 @@ class imageGenerator():
             "width":512,
             "height":512
         }
-        response = requests.post(url=f'http://127.0.0.1:7861/sdapi/v1/txt2img', json=payload)
+        response = requests.post(url=self.url+f'/sdapi/v1/txt2img', json=payload) #local
+
         r=json.loads(response.text)
         img64=r["images"][0]
         imgdata = base64.b64decode(img64)
@@ -57,21 +68,24 @@ class imageGenerator():
         return filename
 
     def generateImage2Image(self,prompt="",startimage="",steps=15,x=0,y=0,room=""):
-        preimage=startimage
-        #startimage= base64.b64decode(startimage)
-        #startimage=Image.open(BytesIO(imgdata))
-        #startimage=Image.open(io.BytesIO(base64.b64decode(startimage.split(",",1)[0])))
-        startimage=self.dataurl_to_pil(startimage)
 
+        seed= int(time.time())
         inpaint_full_res=False
         image_cfg_scale=15
         denoising_strength=0.6
-        seed= int(time.time())
         inpainting_fill=0
 
-        if self.count_alpha_pixels(startimage)>29800:
+        preimage=startimage
+        hasalpha=True
+        if self.bgimage:
+            hasalpha=False
+        else:
+            startimage=self.dataurl_to_pil(startimage)
+            if self.count_alpha_pixels(startimage)<29800:
+                hasalpha=False
         #if self.im_has_alpha(startimage):
         #if 1==2:
+        if hasalpha:
             print("HAS SOME ALPHA")
             #startimage = np.array(startimage)
             #maskedimage=self.detect_white_mask(startimage)
@@ -90,24 +104,8 @@ class imageGenerator():
             denoising_strength=0.7
             #steps=25
             inpainting_fill=1
-            
-            """
-            startimage=(self.rgba2rgb(self.dataurl_to_pil(preimage)))
-            startimage.paste(im=maskedimage_invert, box=(0, 0), mask=maskedimage_invert)
-            #startimage=Image.composite(startimage,maskedimage,maskedimage)
-            preimage=self.pil_to_base64(startimage)
-            """
-            """
-            startimage=np.array(self.rgba2rgb(startimage))
-            mask = np.array(self.STATIC_MASK)[:, :, 0]
-            img, mask = functbl["patchmatch"](startimage, mask)
-            init_image = Image.fromarray(img)
-            mask = 255 - mask
-            mask = skimage.measure.block_reduce(mask, (8, 8), np.max)
-            mask = mask.repeat(8, axis=0).repeat(8, axis=1)
-            maskedimage = Image.fromarray(mask)
-            """
-        
+
+
         #startimage.save("test.png")
         #maskedimage.save("test2.png")
 
@@ -115,8 +113,6 @@ class imageGenerator():
             "init_images": [preimage],#[self.pil_to_base64(startimage)],
             "mask":self.pil_to_base64(maskedimage),
             "mask_blur":8,
-            
-         
             #"initial_noise_multiplier":5,
            # "inpainting_fill": 0,
            "inpainting_fill":inpainting_fill,
@@ -131,18 +127,21 @@ class imageGenerator():
             "width":512,
             "height":512
         }
-        response = requests.post(url=f'http://127.0.0.1:7861/sdapi/v1/img2img', json=payload)
-        r=json.loads(response.text)
-        img64=r["images"][0]
-        imgdata = base64.b64decode(img64)
-        im=Image.open(BytesIO(imgdata))
-        filename=str(time.time() * 1000).replace('.', '')+"_"+str(x)+"_"+str(y)
-        fileuri = self.savefolder+(filename)+'.jpg'  # I assume you have a way of picking unique filenames
-        im.save(fileuri)
+        try:
+            response = requests.post(url=self.url+f'/sdapi/v1/img2img', json=payload)
+            r=json.loads(response.text)
+            img64=r["images"][0]
+            imgdata = base64.b64decode(img64)
+            im=Image.open(BytesIO(imgdata))
+            filename=str(time.time() * 1000).replace('.', '')+"_"+str(x)+"_"+str(y)
+            fileuri = self.savefolder+(filename)+'.jpg'  # I assume you have a way of picking unique filenames
+            im.save(fileuri)
+        except:
+            filename=""
         return filename
 
     def applyMask(self,img):
-        
+
         fill_mode="perlin"
         mask = np.array(self.STATIC_MASK)[:, :, 0]
         img, mask = self.perlin_noise(img, mask)
@@ -167,22 +166,22 @@ class imageGenerator():
         data = data.encode()
 
         # The data is encoded as base64, so we decode it.
-        data = base64.b64decode(data) 
+        data = base64.b64decode(data)
         return Image.open(io.BytesIO(data))
 
     def detect_white_mask(self,image):
         # Convert the PIL image to a numpy array
         image = np.array(image)
-        
+
         # Extract the red, green, and blue color channels
         b, g, r, a = cv2.split(image)
-        
+
         # Combine the red, green, and blue channels into a single grayscale image
         gray = cv2.cvtColor(np.dstack((r, g, b)), cv2.COLOR_BGR2GRAY)
-        
+
         # Threshold the image to isolate the white pixels
         _, thresh = cv2.threshold(gray, 250, 255, cv2.THRESH_BINARY)
-    
+
         # Return the threshold image as a mask
         return Image.fromarray(thresh)
 
@@ -190,7 +189,7 @@ class imageGenerator():
         mask = image.split()[3].point(lambda x: 255 if x > 0 else 0, '1')
         mask = ImageOps.invert(mask)
         mask = mask.filter(ImageFilter.MaxFilter(size=dilation * 2 + 1))
-        
+
         # Convert the single-channel grayscale image to a 3-channel RGB image
         mask = mask.convert('RGB')
         mask = mask.filter(ImageFilter.GaussianBlur(radius=blur))
@@ -205,7 +204,7 @@ class imageGenerator():
                 if index == transparent:
                     return True
         elif img.mode == "RGBA":
-           
+
             extrema = img.getextrema()
             if extrema[3][0] < 255:
                 return True
