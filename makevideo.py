@@ -4,7 +4,7 @@ import glob,os
 import moviepy.video.io.ImageSequenceClip
 import shutil
 from lib.utils import *
-
+from moviepy.editor import *
 
 parser = argparse.ArgumentParser( prog = 'collage-makevideo')
 parser.add_argument('-f', '--imagesfolder',required=True)
@@ -68,13 +68,13 @@ else:
             uris.append(imguri)
 
 #add some static time at the end
-for i in range(10):
-    uris.append(imguri)
+end=ImageClip(imguri).set_duration(20)
 
 print("")
 print("frames ready, converting to movie, this might take a while")
 fps=4
 clip = moviepy.video.io.ImageSequenceClip.ImageSequenceClip(uris, fps=fps)
+clip=concatenate_videoclips([clip, end])
 clip.write_videofile(args.imagesfolder+'/collage.mp4')
 
 #delete tmp folder
