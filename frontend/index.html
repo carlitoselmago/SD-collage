@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
      <link rel="icon" type="image/png"  href="{{ url_for('static',filename='favicon.png') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -9,10 +10,19 @@
     <title>SD-Collage</title>
      <meta name="description" content="Collaborative inpainting using AI image generation">
      <meta property="og:image" content="{{ url_for('static',filename='ogimage.jpg') }}">
-    <style> 
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
         </style>
     <link href="{{ url_for('static',filename='main.css') }}" rel="stylesheet" type="text/css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NM5S1J45ZM"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-NM5S1J45ZM');
+    </script>
 </head>
 
 <body class="{{ defaults.mode }} {{ defaults.ssl }}" width="{{ defaults.width }}" height="{{ defaults.height }}" firstimagewait="{{defaults.firstimagewait}}"">

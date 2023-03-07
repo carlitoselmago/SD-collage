@@ -13,7 +13,7 @@ import cv2
 
 class imageGenerator():
 
-    negative_prompt="text, letters"
+    negative_prompt="(text), letters, watermark"
 
     def __init__(self,savefolder="",url="",bgimage=False):
         if not url:
