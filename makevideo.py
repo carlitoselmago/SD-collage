@@ -20,8 +20,10 @@ else:
     imgs=glob.glob(args.imagesfolder+"/*.jpg")
     imgs.sort(key=str.lower)
     for file in imgs:
+        head, file = os.path.split(file)
         img=file.split("_")
-        newimage={"imguri":file,"x":int(img[1]),"y":int(img[2].split(".")[0])} 
+        newimage={"imguri":file,"x":int(img[1]),"y":int(img[2].split(".")[0])}
+        
         images.append(newimage)
     #print("IMAGESSS",images)
 
@@ -32,7 +34,8 @@ else:
     #write video
     #video = cv2.VideoWriter("collage", 0, 1, (args.width,args.height))
 
-    bgimage=cv2.imread(images[0]["imguri"])
+    bgimage=cv2.imread(args.imagesfolder+"/"+images[0]["imguri"])
+    
     (bg_h, bg_w) = bgimage.shape[:2]
 
     #patchimage=cv2.imread(images[1]["imguri"])
@@ -46,7 +49,7 @@ else:
     uris=[]
 
     for i,image in enumerate(images):
-        frame= cv2.imread(image["imguri"])
+        frame= cv2.imread(args.imagesfolder+"/"+image["imguri"])
         if i>0:
             #print("frame",i)
             scale=bg_w/dim[0]
