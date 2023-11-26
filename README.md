@@ -6,12 +6,16 @@
 Using https://github.com/AUTOMATIC1111/stable-diffusion-webui
 
 run sd api before starting collage server (automatic111)
+```
 bash webui.sh --nowebui --port 7860 --listen --xformers
+```
+
+(process is running as a service)
 
 then:
-
+```
 python app.py 
-
+```
 or 
 
 python app.py -s #this will use the first image found's size as canvas size (for background mode)

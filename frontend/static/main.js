@@ -383,7 +383,7 @@ function engineDown(){
   if (!$("body").hasClass("enginedown")){
     iziToast.show({
         //title: '',
-        message: 'Image generator engine is down',
+        message: 'Image generator engine is off',
         position: "topCenter",
         timeout:false,
         displayMode:"replace"

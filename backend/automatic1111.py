@@ -17,7 +17,7 @@ class imageGenerator():
 
     def __init__(self,savefolder="",url="",bgimage=False):
         if not url:
-            url="http://127.0.0.1:7861"
+            url="http://127.0.0.1:7860"
         self.url=url
         self.savefolder=savefolder
         self.STATIC_MASK = Image.open("mask.png")
