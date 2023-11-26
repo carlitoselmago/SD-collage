@@ -5,7 +5,7 @@
 ## Stable diffusion backend
 Using https://github.com/AUTOMATIC1111/stable-diffusion-webui
 
-run sd api before starting collage server (automatic111)
+run sd api before starting collage server (automatic1111)
 ```
 bash webui.sh --nowebui --port 7860 --listen --xformers
 ```
