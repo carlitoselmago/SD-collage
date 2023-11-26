@@ -17,9 +17,10 @@ then:
 python app.py 
 ```
 or 
-
+```
 python app.py -s #this will use the first image found's size as canvas size (for background mode)
 python app.py -ssl #this will run the server in SSL mode (use certbot or similiar to create a SSL first and place key and cer as key.pem and cert.pem in root)
+```
 
 ## Implemented Feautures
 add ?mode=streamer to your browser to enable auto zooming on prompting action and ghost mode (no prompter box active)
