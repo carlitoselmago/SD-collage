@@ -6,7 +6,7 @@
 Using https://github.com/AUTOMATIC1111/stable-diffusion-webui
 
 run sd api before starting collage server (automatic111)
-bash webui.sh --nowebui --port 7861 --xformers
+bash webui.sh --nowebui --port 7860 --listen --xformers
 
 then:
 
