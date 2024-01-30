@@ -1,5 +1,6 @@
 # SD-collage
- simplier all local clone of stable-difussion-multiplayer
+ simplier all local clone of stable-difussion-multiplayer based on an starting image
+ https://huggingface.co/spaces/huggingface-projects/stable-diffusion-multiplayer
 
 
 ## Stable diffusion backend
