@@ -62,6 +62,7 @@ class imageGenerator():
             "width":512,
             "height":512
         }
+        print("payload",payload)
         response = requests.post(url=self.url+f'/sdapi/v1/txt2img', json=payload) #local
 
         r=json.loads(response.text)
