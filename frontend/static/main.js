@@ -58,6 +58,23 @@ $(document).ready(function () {
             "maxTime":15
         });
 
+
+        function setSpeech() {
+            return new Promise(
+                function (resolve, reject) {
+                    let synth = window.speechSynthesis;
+                    let id;
+
+                    id = setInterval(() => {
+                        if (synth.getVoices().length !== 0) {
+                            resolve(synth.getVoices());
+                            clearInterval(id);
+                        }
+                    }, 10);
+                }
+            )
+        }
+
         function TTS_speak(newprompt){
             console.log("speak",newprompt);
             var randomIndex = Math.floor(Math.random() * voices.length);
@@ -70,8 +87,14 @@ $(document).ready(function () {
         function TTS_init(){
             window.promptqueue=[];
             window.speech = new SpeechSynthesisUtterance();
-            const voices = window.speechSynthesis.getVoices();
-            console.log("voices",voices);
+            var voices=[];
+            setTimeout(() => {
+                let s = setSpeech();
+                s.then((v) => {
+                    voices=v;
+                    console.log("voices",voices);
+                });
+     
             window.speech.volume = 1; // 0 to 1
             window.speech.rate = 1; // 0.1 to 10
             window.speech.pitch = 1; //0 to 2
