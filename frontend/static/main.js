@@ -188,7 +188,7 @@ $(document).ready(function () {
  
             if ("promptqueue" in window){
               window.promptqueue.push(newprompt);
-              this.TTS_speak(window.promptqueue.shift());
+              TTS_speak(window.promptqueue.shift());
             }
             
         }
