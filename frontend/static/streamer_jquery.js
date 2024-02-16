@@ -1,6 +1,10 @@
 (function ($) {
 // Define the plugin name and default options
 $.fn.streamer = function(options) {
+
+   this.TTS_init();
+  
+
   // Merge the user options with the default options
   var settings = $.extend({
     //The base class for elements that will have listeners
@@ -14,6 +18,8 @@ $.fn.streamer = function(options) {
     // The transition duration in milliseconds
     transitionDuration: 5000
   }, options);
+
+  var promptqueue=[];
 
   // Return this to maintain chainability
   return this.each(function() {
@@ -109,7 +115,35 @@ $.fn.streamer = function(options) {
     }
   }
 
+  
 
+  var TTS_init= function(){
+    window.promptqueue=[];
+    window.speech = new SpeechSynthesisUtterance();
+    window.speech.volume = 1; // 0 to 1
+    window.speech.rate = 1; // 0.1 to 10
+    window.speech.pitch = 1; //0 to 2
+    window.speech.lang = "en-US";
+    window.speech.onend = function(event) {
+       // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
+       if (window.promptqueue.length>0){
+        window.promptqueue.push(newprompt);
+        this.TTS_speak(window.promptqueue.shift());
+       }
+    };
+
+  }
+
+  var TTS_speak= function(text){
+      window.speech.text = text;
+      window.speechSynthesis.speak(speech);
+  }
+
+
+  function handlenewprompt(newprompt){
+    window.promptqueue.push(newprompt);
+    this.TTS_speak(window.promptqueue.shift());
+  }
 
   // Boolean flag to indicate whether to keep looking for new elements
   var keepLooking = true;
@@ -185,6 +219,11 @@ $.fn.streamer = function(options) {
 
     observer.observe(target, { childList: true, subtree: true,attributeFilter : ['style', 'class'] });
     */
+    return  {
+      onaddedPrompt:handlenewprompt
+    }
   });
+
+ 
 };
 }(jQuery));

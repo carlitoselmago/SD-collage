@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple TTS Example</title>
+<style>
+    #start-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#start-btn:hover {
+    background-color: #0056b3;
+}
+</style>
+
+</head>
+<body>
+
+<button id="start-btn">Start</button>
+
+<script>
+    document.getElementById('start-btn').addEventListener('click', function() {
+    var speech = new SpeechSynthesisUtterance();
+    speech.text = "Hello, welcome to the TTS demonstration. Click the button to hear this message.";
+    speech.lang = "en-US";
+    speech.volume = 1; // 0 to 1
+    speech.rate = 1; // 0.1 to 10
+    speech.pitch = 1; //0 to 2
+    window.speechSynthesis.speak(speech);
+});
+</script>
+</body>
+</html>

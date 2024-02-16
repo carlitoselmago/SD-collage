@@ -1,6 +1,7 @@
 window.sid = false;
 window.firstpaint = true
 
+
 const canvasContainer = document.getElementById('canvas');
 const cont='2d';
 const canvasWidth = $("body").attr("width");
@@ -12,7 +13,7 @@ canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 canvas.setAttribute("id", "maincanvas");
 const context = canvas.getContext(cont, { willReadFrequently: true });
-
+window.streamer=false;
 //check canvas size
 var isValidCanvas = canvasSize.test({
     width : canvasWidth,
@@ -46,6 +47,18 @@ var loadedimages = {};
 var firstloaded=false;
 
 $(document).ready(function () {
+    let initialScale=1.5;
+    if ($("body").hasClass("streamer")){
+        initialScale=1.1;
+        
+        console.log("streamer mode");
+        window.streamer=$("#wrap").streamer({
+            "watchClass":"otherbox",
+            "triggerClass":"prompting",
+            "maxTime":15
+        });
+    }
+
     $("#loading").css({"display":"flex"});
     $("#prompter .info.maininfo").show();
     let protocol="http";
@@ -65,12 +78,7 @@ $(document).ready(function () {
     const minicanvas = document.getElementById('minicanvas');
     const minicontext = minicanvas.getContext(cont, { willReadFrequently: true });
 
-    let initialScale=1.5;
-    if ($("body").hasClass("streamer")){
-        console.log("streamer mode");
-        initialScale=1.1;
-    }
-
+   
     $("#prompt").focus();
 
     $("#prompter").on("click", function (e) {
@@ -125,14 +133,7 @@ $(document).ready(function () {
         return false;
     });
 
-    if ($("body").hasClass("streamer")){
-        console.log("streamer mode");
-        $("#wrap").streamer({
-            "watchClass":"otherbox",
-            "triggerClass":"prompting",
-            "maxTime":15
-        });
-    }
+   
 
     //SOCKET:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     socket = io.connect(protocol+'://' + document.domain + ':' + location.port);
@@ -148,6 +149,12 @@ $(document).ready(function () {
         const interval = setInterval(function() {
             socket.emit('getupdates');
           }, updateinterval);
+    });
+    socket.on('newprompt', function (newprompt) {
+        //user just sent a prompt, the image is not ready yet
+        if (window.streamer){
+            window.streamer.handlenewprompt(newprompt);
+        }
     });
     socket.on('newimage', function (images) {
         //console.log("newimage!!!",images);
