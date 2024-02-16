@@ -2,6 +2,7 @@ stablediffusion
 diffusers
 images/*
 uploads/*
+saved_collages/*
 earth
 *.mp4
 *.pem
