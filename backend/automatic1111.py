@@ -14,6 +14,13 @@ import cv2
 class imageGenerator():
 
     negative_prompt="(text), letters, watermark"
+    preprompt=""
+    steps=12
+
+    #latent consistency settings (x10 speed)
+    steps=4
+    image_cfg_scale=0
+    preprompt=" <lora:pytorch_lora_weights:1> "
 
     def __init__(self,savefolder="",url="",bgimage=False):
         if not url:
@@ -27,8 +34,9 @@ class imageGenerator():
 
     def loadModel(self):
         pass
-
-    def generateImage(self,prompt="",startimage="",steps=12,x=0,y=0,room=""):
+    
+    #this is the actual function used ############################################
+    def generateImage(self,prompt="",startimage="",x=0,y=0,room=""):
         img=self.dataurl_to_pil(startimage)
         extrema = img.convert("L").getextrema()
         itssolid=False
@@ -39,7 +47,7 @@ class imageGenerator():
         if itssolid:
             print("ITS A SOLID COLOR!!!!!!!!!!!!!!!!!!!!!!!!!")
             #This image is one solid color
-            return self.generateImageText2Image(prompt,steps=steps,x=x,y=y,room=room)
+            return self.generateImageText2Image(prompt,steps=self.steps,x=x,y=y,room=room)
         else:
             print("HAS PREV IMAGE!!!!!!!!!!!!!!!!!!!!!!!!!")
             #its an img 2 img
@@ -48,7 +56,7 @@ class imageGenerator():
 
     def generateImageText2Image(self,prompt="",steps=10,x=0,y=0,room=""):
         payload = {
-            "prompt": prompt,
+            "prompt": self.preprompt+prompt,
             "negative_prompt":self.negative_prompt,
             "steps": steps,
             "width":512,
@@ -67,11 +75,11 @@ class imageGenerator():
         #    f.write(imgdata)
         return filename
 
-    def generateImage2Image(self,prompt="",startimage="",steps=15,x=0,y=0,room=""):
+    def generateImage2Image(self,prompt="",startimage="",steps=12,x=0,y=0,room=""):
 
         seed= int(time.time())
         inpaint_full_res=False
-        image_cfg_scale=15
+        image_cfg_scale=self.image_cfg_scale
         denoising_strength=0.6
         inpainting_fill=0
 
@@ -100,7 +108,7 @@ class imageGenerator():
             maskedimage=self.STATIC_MASK
             #maskedimage_invert=(maskedimage.convert('L'))
             inpaint_full_res=True
-            image_cfg_scale=25
+            image_cfg_scale=self.image_cfg_scale
             denoising_strength=0.7
             #steps=25
             inpainting_fill=1
@@ -120,7 +128,7 @@ class imageGenerator():
             #"inpaint_full_res_padding":52,
             "image_cfg_scale":image_cfg_scale,
             "seed":seed,
-            "prompt": prompt,
+            "prompt": self.preprompt+prompt,
             "negative_prompt":self.negative_prompt,
             "denoising_strength":denoising_strength,
             "steps": steps,

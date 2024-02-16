@@ -1,6 +1,7 @@
 stablediffusion
 diffusers
 images/*
+earth
 *.mp4
 *.pem
 # Byte-compiled / optimized / DLL files
