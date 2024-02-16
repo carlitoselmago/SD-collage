@@ -50,10 +50,13 @@ parser.add_argument('-ssl', '--runinssl',action='store_true')
 parser.add_argument('-url', '--sdengineurl',help='Especifies the url of the sd generator')
 args = parser.parse_args()
 
-IG=imageGenerator(imagesfolder,args.sdengineurl,True)
+IG=imageGenerator(imagesfolder,args.sdengineurl,args.sdengineurl)
 PASSWORD=args.password
 
+defaults={}
+
 def init_SDcollage():
+    global defaults
     if args.startimage:
         imgs=os.listdir(imagesfolder)
         imgs.sort(key=str.lower)
