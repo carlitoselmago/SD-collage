@@ -60,6 +60,9 @@ $(document).ready(function () {
 
         function TTS_speak(newprompt){
             console.log("speak",newprompt);
+            var randomIndex = Math.floor(Math.random() * voices.length);
+            var randomVoice = voices[randomIndex];
+            window.speech.voice = randomVoice;
             window.speech.text = newprompt.prompt;
             window.speechSynthesis.speak(speech);
         }
@@ -67,6 +70,7 @@ $(document).ready(function () {
         function TTS_init(){
             window.promptqueue=[];
             window.speech = new SpeechSynthesisUtterance();
+            const voices = speechSynthesis.getVoices();
             window.speech.volume = 1; // 0 to 1
             window.speech.rate = 1; // 0.1 to 10
             window.speech.pitch = 1; //0 to 2
