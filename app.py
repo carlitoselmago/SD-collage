@@ -143,7 +143,7 @@ def upload_file():
         init_SDcollage()
 
         #reset frontend
-        emit("reset",broadcast=True)
+        emit("reset",{},broadcast=True)
 
         flash('File successfully uploaded and folders updated', 'success')
         return redirect(url_for('config'))
