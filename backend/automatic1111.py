@@ -135,7 +135,7 @@ class imageGenerator():
             "steps": steps,
             "width":512,
             "height":512,
-            "sampler_index":"Euler_a"
+            "sampler_name":"Euler a"
         }
         #print("payload",payload)
         #try:
