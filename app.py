@@ -136,13 +136,13 @@ def prompt(message):
     x=message["x"]
     y=message["y"]
     sid=message["sid"]
-    print("")
-    print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
-    print("prompt:",p,"by:",sid)
-    print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
-    print("SID",sid,"=======================================================")
+    #print("")
+    #print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
+    #print("prompt:",p,"by:",sid)
+    #print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
+    #print("SID",sid,"=======================================================")
     imageid=IG.generateImage(p,startimage=message["baseimg"],x=x,y=y,room=sid)
-    print("imageid",imageid)
+    #print("imageid",imageid)
     status=True
     if imageid=="":
         status=False
@@ -152,7 +152,7 @@ def prompt(message):
         newimage={"imguri":imagesfolder+imageid+".jpg","x":x,"y":y}
         images.append(newimage)
 
-    print("generated image status",status)
+    #print("generated image status",status)
     del users[sid]["prompt"]
     emit("promptready",{"sid":sid,"status":status},room=sid)
     updateImages()

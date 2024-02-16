@@ -1,4 +1,5 @@
 import requests
+from requests import Session
 import json
 import base64
 import time
@@ -25,6 +26,7 @@ class imageGenerator():
     negative_prompt=""
 
     def __init__(self,savefolder="",url="",bgimage=False):
+        self.session = Session()
         if not url:
             url="http://127.0.0.1:7860"
         self.url=url
@@ -141,13 +143,13 @@ class imageGenerator():
         }
         #print("payload",payload)
         try:
-            response = requests.post(url=self.url+f'/sdapi/v1/img2img', json=payload)
+            response = self.session.post(url=self.url+f'/sdapi/v1/img2img', json=payload)
             r=json.loads(response.text)
             img64=r["images"][0]
             imgdata = base64.b64decode(img64)
             im=Image.open(BytesIO(imgdata))
             filename=str(time.time() * 1000).replace('.', '')+"_"+str(x)+"_"+str(y)
-            fileuri = self.savefolder+(filename)+'.jpg'  # I assume you have a way of picking unique filenames
+            fileuri = self.savefolder+(filename)+'.jpg'
             im.save(fileuri)
         except Exception as e:
             print("Exception running prompt",e)
