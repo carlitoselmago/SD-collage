@@ -59,8 +59,8 @@ $(document).ready(function () {
         });
 
         function TTS_speak(newprompt){
-            console.log("speak",text);
-            window.speech.text = newprompt.promp;
+            console.log("speak",newprompt);
+            window.speech.text = newprompt.prompt;
             window.speechSynthesis.speak(speech);
         }
         
