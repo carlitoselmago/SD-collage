@@ -2,8 +2,11 @@
 // Define the plugin name and default options
 $.fn.streamer = function(options) {
 
-   this.TTS_init();
-  
+   
+
+   document.getElementById('initstreamer').addEventListener('click', function() {
+    this.TTS_init();
+   });
 
   // Merge the user options with the default options
   var settings = $.extend({
@@ -141,8 +144,10 @@ $.fn.streamer = function(options) {
 
 
   function handlenewprompt(newprompt){
-    window.promptqueue.push(newprompt);
-    this.TTS_speak(window.promptqueue.shift());
+    if ("promptqueue" in window){
+      window.promptqueue.push(newprompt);
+      this.TTS_speak(window.promptqueue.shift());
+    }
   }
 
   // Boolean flag to indicate whether to keep looking for new elements
