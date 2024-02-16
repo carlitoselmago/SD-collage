@@ -9,6 +9,7 @@ from io import BytesIO
 import numpy as np
 import skimage
 import skimage.measure
+import threading
 
 import cv2
 
@@ -150,7 +151,9 @@ class imageGenerator():
             im=Image.open(BytesIO(imgdata))
             filename=str(time.time() * 1000).replace('.', '')+"_"+str(x)+"_"+str(y)
             fileuri = self.savefolder+(filename)+'.jpg'
-            im.save(fileuri)
+            x = threading.Thread(target=im.save, args=(fileuri,))
+            x.start()
+            #im.save(fileuri)
         except Exception as e:
             print("Exception running prompt",e)
             filename=""
