@@ -57,6 +57,7 @@ defaults={}
 
 def init_SDcollage():
     global defaults
+    global args
     if args.startimage:
         imgs=os.listdir(imagesfolder)
         imgs.sort(key=str.lower)
