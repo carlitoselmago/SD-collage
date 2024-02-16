@@ -128,7 +128,7 @@ class imageGenerator():
            "inpainting_fill":inpainting_fill,
             "inpaint_full_res": inpaint_full_res,
             #"inpaint_full_res_padding":52,
-            "image_cfg_scale":image_cfg_scale,
+            "cfg_scale":image_cfg_scale,
             "seed":seed,
             "prompt": self.preprompt+prompt,
             "negative_prompt":self.negative_prompt,
