@@ -137,7 +137,7 @@ class imageGenerator():
             "height":512,
             "sampler_index":"Euler A"
         }
-        print("payload",payload)
+        #print("payload",payload)
         try:
             response = requests.post(url=self.url+f'/sdapi/v1/img2img', json=payload)
             r=json.loads(response.text)
