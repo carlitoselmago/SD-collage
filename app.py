@@ -136,7 +136,7 @@ def prompt(message):
     x=message["x"]
     y=message["y"]
     sid=message["sid"]
-    emit("newprompt",{"prompt":p,"x":x,"y":y})
+    emit("newprompt",{"prompt":p,"x":x,"y":y},broadcast=True)
     #print("")
     #print("KKKKKKKKKKKKKKKKKKKKKKKKKK")
     #print("prompt:",p,"by:",sid)
