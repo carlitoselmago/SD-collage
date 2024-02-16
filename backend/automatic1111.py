@@ -134,7 +134,8 @@ class imageGenerator():
             "denoising_strength":denoising_strength,
             "steps": steps,
             "width":512,
-            "height":512
+            "height":512,
+            "sampler_index":"Euler A"
         }
         print("payload",payload)
         try:
