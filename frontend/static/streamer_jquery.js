@@ -2,13 +2,6 @@
 // Define the plugin name and default options
 $.fn.streamer = function(options) {
 
-   
-
-   document.getElementById('initstreamer').addEventListener('click', function(e) {
-    e.preventDefault();
-    this.TTS_init();
-   $('#initstreamer').remove();
-   });
 
   // Merge the user options with the default options
   var settings = $.extend({
@@ -25,6 +18,35 @@ $.fn.streamer = function(options) {
   }, options);
 
   var promptqueue=[];
+
+
+  var TTS_init= function(){
+    window.promptqueue=[];
+    window.speech = new SpeechSynthesisUtterance();
+    window.speech.volume = 1; // 0 to 1
+    window.speech.rate = 1; // 0.1 to 10
+    window.speech.pitch = 1; //0 to 2
+    window.speech.lang = "en-US";
+    window.speech.onend = function(event) {
+       // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
+       if (window.promptqueue.length>0){
+        window.promptqueue.push(newprompt);
+        this.TTS_speak(window.promptqueue.shift());
+       }
+    };
+
+  }.bind(this);
+
+  var TTS_speak= function(text){
+      window.speech.text = text;
+      window.speechSynthesis.speak(speech);
+    }.bind(this);
+
+    document.getElementById('initstreamer').addEventListener('click', function(e) {
+      e.preventDefault();
+      this.TTS_init();
+     $('#initstreamer').remove();
+     });
 
   // Return this to maintain chainability
   return this.each(function() {
@@ -122,27 +144,7 @@ $.fn.streamer = function(options) {
 
   
 
-  var TTS_init= function(){
-    window.promptqueue=[];
-    window.speech = new SpeechSynthesisUtterance();
-    window.speech.volume = 1; // 0 to 1
-    window.speech.rate = 1; // 0.1 to 10
-    window.speech.pitch = 1; //0 to 2
-    window.speech.lang = "en-US";
-    window.speech.onend = function(event) {
-       // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
-       if (window.promptqueue.length>0){
-        window.promptqueue.push(newprompt);
-        this.TTS_speak(window.promptqueue.shift());
-       }
-    };
 
-  }
-
-  var TTS_speak= function(text){
-      window.speech.text = text;
-      window.speechSynthesis.speak(speech);
-  }
 
 
   function handlenewprompt(newprompt){
