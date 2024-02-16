@@ -70,7 +70,7 @@ $(document).ready(function () {
         function TTS_init(){
             window.promptqueue=[];
             window.speech = new SpeechSynthesisUtterance();
-            const voices = indow.speechSynthesis.getVoices();
+            const voices = window.speechSynthesis.getVoices();
             console.log("voices",voices);
             window.speech.volume = 1; // 0 to 1
             window.speech.rate = 1; // 0.1 to 10
