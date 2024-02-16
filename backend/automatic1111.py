@@ -135,21 +135,21 @@ class imageGenerator():
             "steps": steps,
             "width":512,
             "height":512,
-            "sampler_index":"Euler_A"
+            "sampler_index":"Euler_a"
         }
         #print("payload",payload)
-        try:
-            response = requests.post(url=self.url+f'/sdapi/v1/img2img', json=payload)
-            r=json.loads(response.text)
-            img64=r["images"][0]
-            imgdata = base64.b64decode(img64)
-            im=Image.open(BytesIO(imgdata))
-            filename=str(time.time() * 1000).replace('.', '')+"_"+str(x)+"_"+str(y)
-            fileuri = self.savefolder+(filename)+'.jpg'  # I assume you have a way of picking unique filenames
-            im.save(fileuri)
-        except Exception as e:
-            print("Exception running prompt",e)
-            filename=""
+        #try:
+        response = requests.post(url=self.url+f'/sdapi/v1/img2img', json=payload)
+        r=json.loads(response.text)
+        img64=r["images"][0]
+        imgdata = base64.b64decode(img64)
+        im=Image.open(BytesIO(imgdata))
+        filename=str(time.time() * 1000).replace('.', '')+"_"+str(x)+"_"+str(y)
+        fileuri = self.savefolder+(filename)+'.jpg'  # I assume you have a way of picking unique filenames
+        im.save(fileuri)
+        #except Exception as e:
+        #    print("Exception running prompt",e)
+        #    filename=""
         return filename
 
     def applyMask(self,img):
