@@ -216,7 +216,7 @@ $(document).ready(function () {
             //timeout:false,
             displayMode:"replace"
         });
-        $("#inputs").fadeout("fast",function(){
+        $("#inputs").fadeOut("fast",function(){
             $(this).remove();
         });
         setTimeout(() => {
