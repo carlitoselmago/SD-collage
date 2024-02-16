@@ -19,35 +19,7 @@ $.fn.streamer = function(options) {
 
 
 
-  var TTS_speak= function(text){
-    console.log("speak",text);
-    window.speech.text = text;
-    window.speechSynthesis.speak(speech);
-  }.bind(this);
-
-  var TTS_init= function(){
-    window.promptqueue=[];
-    window.speech = new SpeechSynthesisUtterance();
-    window.speech.volume = 1; // 0 to 1
-    window.speech.rate = 1; // 0.1 to 10
-    window.speech.pitch = 1; //0 to 2
-    window.speech.lang = "en-US";
-    window.speech.onend = function(event) {
-       // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
-       if (window.promptqueue.length>0){
-        window.promptqueue.push(newprompt);
-      TTS_speak(window.promptqueue.shift());
-       }
-    };
-
-  }.bind(this);
-
-
-    document.getElementById('initstreamer').addEventListener('click', function(e) {
-      e.preventDefault();
-     TTS_init();
-     $('#initstreamer').remove();
-     });
+ 
 
   // Return this to maintain chainability
   return this.each(function() {
@@ -147,15 +119,6 @@ $.fn.streamer = function(options) {
 
 
 
-
-  function handlenewprompt(newprompt){
-    console.log("handlenewprompt",newprompt);
-    if ("promptqueue" in window){
-      window.promptqueue.push(newprompt);
-      this.TTS_speak(window.promptqueue.shift());
-    }
-  }
-
   // Boolean flag to indicate whether to keep looking for new elements
   var keepLooking = true;
 
@@ -230,9 +193,7 @@ $.fn.streamer = function(options) {
 
     observer.observe(target, { childList: true, subtree: true,attributeFilter : ['style', 'class'] });
     */
-    return  {
-      onaddedPrompt:handlenewprompt
-    }
+ 
   });
 
  

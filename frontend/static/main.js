@@ -57,6 +57,36 @@ $(document).ready(function () {
             "triggerClass":"prompting",
             "maxTime":15
         });
+
+        function TTS_speak(text){
+            console.log("speak",text);
+            window.speech.text = text;
+            window.speechSynthesis.speak(speech);
+        }
+        
+        function TTS_init(){
+            window.promptqueue=[];
+            window.speech = new SpeechSynthesisUtterance();
+            window.speech.volume = 1; // 0 to 1
+            window.speech.rate = 1; // 0.1 to 10
+            window.speech.pitch = 1; //0 to 2
+            window.speech.lang = "en-US";
+            window.speech.onend = function(event) {
+               // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
+               if (window.promptqueue.length>0){
+                window.promptqueue.push(newprompt);
+              TTS_speak(window.promptqueue.shift());
+               }
+            };
+        
+          }
+        
+        
+        document.getElementById('initstreamer').addEventListener('click', function(e) {
+            e.preventDefault();
+            TTS_init();
+            $('#initstreamer').remove();
+            });
     }
 
     $("#loading").css({"display":"flex"});
@@ -154,7 +184,13 @@ $(document).ready(function () {
         console.log('newprompt',newprompt);
         //user just sent a prompt, the image is not ready yet
         if (window.streamer){
-            window.streamer.handlenewprompt(newprompt);
+
+ 
+            if ("promptqueue" in window){
+              window.promptqueue.push(newprompt);
+              this.TTS_speak(window.promptqueue.shift());
+            }
+            
         }
     });
     socket.on('newimage', function (images) {
