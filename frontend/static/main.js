@@ -71,6 +71,7 @@ $(document).ready(function () {
             window.promptqueue=[];
             window.speech = new SpeechSynthesisUtterance();
             const voices = speechSynthesis.getVoices();
+            console.log("voices",voices);
             window.speech.volume = 1; // 0 to 1
             window.speech.rate = 1; // 0.1 to 10
             window.speech.pitch = 1; //0 to 2
