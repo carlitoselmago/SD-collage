@@ -4,8 +4,10 @@ $.fn.streamer = function(options) {
 
    
 
-   document.getElementById('initstreamer').addEventListener('click', function() {
+   document.getElementById('initstreamer').addEventListener('click', function(e) {
+    e.preventDefault();
     this.TTS_init();
+   $('#initstreamer').remove();
    });
 
   // Merge the user options with the default options
