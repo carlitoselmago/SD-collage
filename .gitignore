@@ -1,6 +1,7 @@
 stablediffusion
 diffusers
 images/*
+uploads/*
 earth
 *.mp4
 *.pem
