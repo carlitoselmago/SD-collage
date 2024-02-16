@@ -141,6 +141,7 @@ class imageGenerator():
         #try:
         response = requests.post(url=self.url+f'/sdapi/v1/img2img', json=payload)
         r=json.loads(response.text)
+        print("response",r)
         img64=r["images"][0]
         imgdata = base64.b64decode(img64)
         im=Image.open(BytesIO(imgdata))
