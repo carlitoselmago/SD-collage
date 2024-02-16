@@ -58,9 +58,9 @@ $(document).ready(function () {
             "maxTime":15
         });
 
-        function TTS_speak(text){
+        function TTS_speak(newprompt){
             console.log("speak",text);
-            window.speech.text = text;
+            window.speech.text = newprompt.promp;
             window.speechSynthesis.speak(speech);
         }
         
