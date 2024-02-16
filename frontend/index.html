@@ -53,7 +53,7 @@
         </form>
 
     </div>
-    {% if  defaults.mode %}
+    {% if defaults.mode|trim == "streamer" %}
         <a id="initstreamer" href="">START</a>
     {% endif %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
