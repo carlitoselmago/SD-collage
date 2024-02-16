@@ -151,6 +151,7 @@ $(document).ready(function () {
           }, updateinterval);
     });
     socket.on('newprompt', function (newprompt) {
+        console.log('newprompt',newprompt);
         //user just sent a prompt, the image is not ready yet
         if (window.streamer){
             window.streamer.handlenewprompt(newprompt);

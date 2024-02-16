@@ -17,9 +17,10 @@ $.fn.streamer = function(options) {
     transitionDuration: 5000
   }, options);
 
-  var promptqueue=[];
+
 
   var TTS_speak= function(text){
+    console.log("speak",text);
     window.speech.text = text;
     window.speechSynthesis.speak(speech);
   }.bind(this);
@@ -40,7 +41,6 @@ $.fn.streamer = function(options) {
     };
 
   }.bind(this);
-
 
 
     document.getElementById('initstreamer').addEventListener('click', function(e) {
@@ -149,6 +149,7 @@ $.fn.streamer = function(options) {
 
 
   function handlenewprompt(newprompt){
+    console.log("handlenewprompt",newprompt);
     if ("promptqueue" in window){
       window.promptqueue.push(newprompt);
       this.TTS_speak(window.promptqueue.shift());
