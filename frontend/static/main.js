@@ -94,7 +94,7 @@ $(document).ready(function () {
                     voices=v;
                     console.log("voices",voices);
                 });
-     
+            });
             window.speech.volume = 1; // 0 to 1
             window.speech.rate = 1; // 0.1 to 10
             window.speech.pitch = 1; //0 to 2
