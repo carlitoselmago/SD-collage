@@ -19,6 +19,10 @@ $.fn.streamer = function(options) {
 
   var promptqueue=[];
 
+  var TTS_speak= function(text){
+    window.speech.text = text;
+    window.speechSynthesis.speak(speech);
+  }.bind(this);
 
   var TTS_init= function(){
     window.promptqueue=[];
@@ -31,20 +35,17 @@ $.fn.streamer = function(options) {
        // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
        if (window.promptqueue.length>0){
         window.promptqueue.push(newprompt);
-        this.TTS_speak(window.promptqueue.shift());
+      TTS_speak(window.promptqueue.shift());
        }
     };
 
   }.bind(this);
 
-  var TTS_speak= function(text){
-      window.speech.text = text;
-      window.speechSynthesis.speak(speech);
-    }.bind(this);
+
 
     document.getElementById('initstreamer').addEventListener('click', function(e) {
       e.preventDefault();
-      this.TTS_init();
+     TTS_init();
      $('#initstreamer').remove();
      });
 
