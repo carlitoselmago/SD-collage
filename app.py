@@ -1,4 +1,5 @@
 from flask import Flask, render_template,session,request,send_from_directory
+from flask import Flask, request, render_template, redirect, url_for, flash, session
 from flask_socketio import SocketIO,emit, join_room, leave_room
 import glob,os
 import threading
@@ -9,6 +10,8 @@ from PIL import Image
 from lib.utils import *
 from engineio.payload import Payload
 import requests
+
+from werkzeug.utils import secure_filename
 
 Payload.max_decode_packets = 40
 #defaults:::::::::::::::::::::::::::::::::::::::::::
@@ -32,21 +35,22 @@ from backend.automatic1111 import imageGenerator
 async_mode = None
 app = Flask(__name__,template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 socketio = SocketIO(app,ping_timeout=60,ping_interval=25,max_http_buffer_size=1e9,async_mode=async_mode)
-
+app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024 * 1024  # 1 GB limit
+app.secret_key = str(os.getpid())
 imagesfolder="images/"
-
-
 
 users={}
 images=[]
 
 parser = argparse.ArgumentParser( prog = 'SD-collage')
 parser.add_argument('-s', '--startimage',action='store_true',help='If true, use first image found as bg image')
+parser.add_argument('-pass', '--password',action='store_true',default="12345",help='password for config page')
 parser.add_argument('-ssl', '--runinssl',action='store_true')
 parser.add_argument('-url', '--sdengineurl',help='Especifies the url of the sd generator')
 args = parser.parse_args()
 
 IG=imageGenerator(imagesfolder,args.sdengineurl,args.sdengineurl)
+PASSWORD=args.password
 
 if args.startimage:
     imgs=os.listdir(imagesfolder)
@@ -77,6 +81,8 @@ def main():
     defaults["mode"]=mode
     if args.runinssl:
         defaults["mode"]+=" ssl"
+    
+    
     if args.startimage:
         defaults["mode"]+=" startimage"
     return render_template('index.html',defaults=defaults)
@@ -84,6 +90,37 @@ def main():
 @app.route('/images/<path:filename>')
 def base_static(filename):
     return send_from_directory(app.root_path + '/images/', filename)
+
+
+@app.route('/config', methods=['GET', 'POST'])
+def config():
+    if request.method == 'POST':
+        password = request.form.get('password')
+        if password == PASSWORD:
+            # Password is correct, proceed to file upload page
+            return render_template('upload.html')
+        else:
+            flash('Incorrect password', 'danger')
+            return redirect(url_for('config'))
+    # Show password form
+    return render_template('config.html')
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        flash('No file part', 'danger')
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        flash('No selected file', 'danger')
+        return redirect(request.url)
+    if file:
+        # Save the file. Ensure you have a folder named 'uploads' in your app's root directory
+        filename = secure_filename(file.filename)
+        file.save(os.path.join('uploads', filename))
+        flash('File successfully uploaded', 'success')
+        return redirect(url_for('config'))
+    return ''
 
 # ------- SOCKETS ----------
 

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload File</title>
+</head>
+<body>
+    <h2>Upload File</h2>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <progress id="progressBar" value="0" max="100" style="width:300px;"></progress>
+        <input type="submit" value="Upload">
+    </form>
+    <script>
+        const form = document.querySelector('form');
+        form.onsubmit = event => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percentage = (e.loaded / e.total) * 100;
+                    document.getElementById('progressBar').value = percentage;
+                }
+            };
+            xhr.onload = function() {
+                if (xhr.status == 200) {
+                    alert('Upload complete');
+                } else {
+                    alert('Upload failed');
+                }
+            };
+            xhr.send(formData);
+        };
+    </script>
+</body>
+</html>
