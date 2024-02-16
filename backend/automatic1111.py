@@ -135,7 +135,7 @@ class imageGenerator():
             "steps": steps,
             "width":512,
             "height":512,
-            "sampler_index":"Euler A"
+            "sampler_index":"Euler_A"
         }
         #print("payload",payload)
         try:
@@ -147,7 +147,8 @@ class imageGenerator():
             filename=str(time.time() * 1000).replace('.', '')+"_"+str(x)+"_"+str(y)
             fileuri = self.savefolder+(filename)+'.jpg'  # I assume you have a way of picking unique filenames
             im.save(fileuri)
-        except:
+        except Exception as e:
+            print("Exception running prompt",e)
             filename=""
         return filename
 
