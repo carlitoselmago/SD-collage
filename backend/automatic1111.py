@@ -20,7 +20,7 @@ class imageGenerator():
 
     #latent consistency settings (x10 speed)
     steps=4
-    image_cfg_scale=0
+    image_cfg_scale=7
     preprompt="<lora:disney:2> "#" <lora:pytorch_lora_weights:1> "
     negative_prompt=""
 
