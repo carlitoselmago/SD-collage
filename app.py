@@ -9,8 +9,9 @@ import argparse
 from PIL import Image
 from lib.utils import *
 from engineio.payload import Payload
+from datetime import datetime
 import requests
-
+import shutil
 from werkzeug.utils import secure_filename
 
 Payload.max_decode_packets = 40
@@ -49,31 +50,35 @@ parser.add_argument('-ssl', '--runinssl',action='store_true')
 parser.add_argument('-url', '--sdengineurl',help='Especifies the url of the sd generator')
 args = parser.parse_args()
 
-IG=imageGenerator(imagesfolder,args.sdengineurl,args.sdengineurl)
+IG=imageGenerator(imagesfolder,args.sdengineurl,True)
 PASSWORD=args.password
 
-if args.startimage:
-    imgs=os.listdir(imagesfolder)
+def init_SDcollage():
+    if args.startimage:
+        imgs=os.listdir(imagesfolder)
+        imgs.sort(key=str.lower)
+        bgimage=imgs[0]
+        #print("Grabbing the first image as background template:",bgimage)
+        bgimage=Image.open(imagesfolder+bgimage)#args.startimage)
+        #tileImage(bgimage)
+        defaults={
+            "width":bgimage.size[0],
+            "height":bgimage.size[1],
+            "firstimagewait":300 #in milliseconds
+        }
+        del bgimage
+
+
+    imgs=glob.glob(imagesfolder+"*.jpg")
     imgs.sort(key=str.lower)
-    bgimage=imgs[0]
-    #print("Grabbing the first image as background template:",bgimage)
-    bgimage=Image.open(imagesfolder+bgimage)#args.startimage)
-    #tileImage(bgimage)
-    defaults={
-        "width":bgimage.size[0],
-        "height":bgimage.size[1],
-        "firstimagewait":300 #in milliseconds
-    }
-    del bgimage
+    #print("IMAGESSS",imgs)
+    for file in imgs:
+        img=file.split("_")
+        newimage={"imguri":file,"x":img[1],"y":img[2].split(".")[0]}
+        images.append(newimage)
 
+init_SDcollage()
 
-imgs=glob.glob(imagesfolder+"*.jpg")
-imgs.sort(key=str.lower)
-#print("IMAGESSS",imgs)
-for file in imgs:
-    img=file.split("_")
-    newimage={"imguri":file,"x":img[1],"y":img[2].split(".")[0]}
-    images.append(newimage)
 
 @app.route('/')
 def main():
@@ -115,10 +120,32 @@ def upload_file():
         flash('No selected file', 'danger')
         return redirect(request.url)
     if file:
-        # Save the file. Ensure you have a folder named 'uploads' in your app's root directory
-        filename = secure_filename(file.filename)
-        file.save(os.path.join('uploads', filename))
-        flash('File successfully uploaded', 'success')
+        # Generate a datetime-named folder inside "saved_collages"
+        datetime_folder_name = datetime.now().strftime("%Y%m%d%H%M%S")
+        new_folder_path = os.path.join('saved_collages', datetime_folder_name)
+        os.makedirs(new_folder_path, exist_ok=True)
+
+        # Move all files from "images" to the new folder
+        images_folder_path = 'images'
+        for filename in os.listdir(images_folder_path):
+            source_path = os.path.join(images_folder_path, filename)
+            destination_path = os.path.join(new_folder_path, filename)
+            shutil.move(source_path, destination_path)
+
+        # Save the uploaded file to "images" with the new name
+        #new_filename = "00" + secure_filename(file.filename) + "_0_0"
+        base_name, extension = os.path.splitext(secure_filename(file.filename))
+        new_filename = f"00{base_name}_0_0{extension}"
+        file.save(os.path.join(images_folder_path, new_filename))
+
+
+        #reset backend
+        init_SDcollage()
+
+        #reset frontend
+        emit("reset",broadcast=True)
+
+        flash('File successfully uploaded and folders updated', 'success')
         return redirect(url_for('config'))
     return ''
 

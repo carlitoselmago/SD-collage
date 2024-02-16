@@ -208,17 +208,30 @@ $(document).ready(function () {
             socket.emit('getupdates');
           }, updateinterval);
     });
+    socket.on('reset', function (newprompt) {
+        iziToast.show({
+            //title: '',
+            message: 'A new canvas incoming, automatic refresh in 5 seconds',
+            position: "topCenter",
+            //timeout:false,
+            displayMode:"replace"
+        });
+        $("#inputs").fadeout("fast",function(){
+            $(this).remove();
+        });
+        setTimeout(() => {
+            location.reload();
+          }, "5000");
+       
+    })
     socket.on('newprompt', function (newprompt) {
         console.log('newprompt',newprompt);
         //user just sent a prompt, the image is not ready yet
         if (window.streamer){
-
- 
             if ("promptqueue" in window){
               window.promptqueue.push(newprompt);
               TTS_speak(window.promptqueue.shift());
             }
-            
         }
     });
     socket.on('newimage', function (images) {
