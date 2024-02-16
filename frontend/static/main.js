@@ -77,8 +77,8 @@ $(document).ready(function () {
 
         function TTS_speak(newprompt){
             console.log("speak",newprompt);
-            var randomIndex = Math.floor(Math.random() * voices.length);
-            var randomVoice = voices[randomIndex];
+            var randomIndex = Math.floor(Math.random() * window.voices.length);
+            var randomVoice = window.voices[randomIndex];
             window.speech.voice = randomVoice;
             window.speech.text = newprompt.prompt;
             window.speechSynthesis.speak(speech);
@@ -87,11 +87,11 @@ $(document).ready(function () {
         function TTS_init(){
             window.promptqueue=[];
             window.speech = new SpeechSynthesisUtterance();
-            var voices=[];
+            window.voices=[];
             setTimeout(() => {
                 let s = setSpeech();
                 s.then((v) => {
-                    voices=v;
+                    window.voices=v;
                     console.log("voices",voices);
                 });
             });
