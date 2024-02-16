@@ -107,7 +107,7 @@ $(document).ready(function () {
                }
             };
         
-          });
+          }
         
         
         document.getElementById('initstreamer').addEventListener('click', function(e) {
