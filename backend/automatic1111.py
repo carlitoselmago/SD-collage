@@ -51,7 +51,7 @@ class imageGenerator():
         else:
             print("HAS PREV IMAGE!!!!!!!!!!!!!!!!!!!!!!!!!")
             #its an img 2 img
-            return self.generateImage2Image(prompt,startimage=startimage,steps=steps,x=x,y=y,room=room)
+            return self.generateImage2Image(prompt,startimage=startimage,steps=self.steps,x=x,y=y,room=room)
 
 
     def generateImageText2Image(self,prompt="",steps=10,x=0,y=0,room=""):
