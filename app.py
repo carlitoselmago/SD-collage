@@ -71,6 +71,7 @@ def init_SDcollage():
             "height":bgimage.size[1],
             "firstimagewait":300 #in milliseconds
         }
+        images=[bgimage]
         del bgimage
 
 
