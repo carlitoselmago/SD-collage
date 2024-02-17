@@ -9,44 +9,48 @@
     }, options);
 
     return this.each(function() {
-      var $parent = $(this);
-      var originalTransform = $parent.css("transform");
       var timeoutId = null;
 
       var zoomOnElement = function(index) {
         if (timeoutId) clearTimeout(timeoutId);
 
-        var $elements = $parent.find("." + settings.watchClass);
+        var $elements = $("." + settings.watchClass); // Use the document scope if elements are not strictly children of $parent
         if ($elements.length === 0) {
           zoomOut();
           return;
         }
 
         if (index < 0 || index >= $elements.length) {
-          index = 0;
+          index = 0; // Reset index to 0 if out of bounds
         }
 
         var $element = $($elements[index]);
         var elementOffset = $element.offset();
-        var parentOffset = $parent.offset();
-        var parentCenterX = $parent.width() / 2;
-        var parentCenterY = $parent.height() / 2;
 
-        // Calculate the element's center position
-        var elementCenterX = elementOffset.left - parentOffset.left + $element.outerWidth() / 2;
-        var elementCenterY = elementOffset.top - parentOffset.top + $element.outerHeight() / 2;
+        // Calculate the viewport center
+        var viewportCenterX = $(window).width() / 2;
+        var viewportCenterY = $(window).height() / 2;
 
-        // Calculate the translation needed to center the element
-        var translateX = parentCenterX - elementCenterX;
-        var translateY = parentCenterY - elementCenterY;
+        // Calculate the target element's center position
+        var elementCenterX = elementOffset.left + $element.outerWidth() / 2;
+        var elementCenterY = elementOffset.top + $element.outerHeight() / 2;
 
-        // Adjust translation based on the scale factor
-        translateX = translateX * settings.scaleFactor - (translateX - translateX / settings.scaleFactor);
-        translateY = translateY * settings.scaleFactor - (translateY - translateY / settings.scaleFactor);
+        // Determine the translation needed to align the element's center with the viewport's center
+        var translateX = viewportCenterX - elementCenterX;
+        var translateY = viewportCenterY - elementCenterY;
 
-        $parent.css({
+        // Adjust translation to account for the scale factor
+        translateX = translateX * settings.scaleFactor - (translateX - viewportCenterX) * (settings.scaleFactor - 1);
+        translateY = translateY * settings.scaleFactor - (translateY - viewportCenterY) * (settings.scaleFactor - 1);
+
+        $('html, body').animate({
+          scrollTop: $element.offset().top - ($(window).height() - $element.outerHeight()) / 2,
+          scrollLeft: $element.offset().left - ($(window).width() - $element.outerWidth()) / 2
+        }, settings.transitionDuration);
+
+        $element.css({
           transition: `transform ${settings.transitionDuration}ms`,
-          transform: `translate(${translateX}px, ${translateY}px) scale(${settings.scaleFactor})`
+          transform: `scale(${settings.scaleFactor})`
         });
 
         timeoutId = setTimeout(function() {
@@ -56,28 +60,17 @@
 
       var zoomOut = function() {
         if (timeoutId) clearTimeout(timeoutId);
-        $parent.css({
+        $("[class^='" + settings.watchClass + "']").css({
           transition: `transform ${settings.transitionDuration}ms`,
-          transform: originalTransform
+          transform: 'scale(1)'
         });
       };
 
-      var observeDOM = function() {
-        var observer = new MutationObserver(function(mutations) {
-          mutations.forEach(function(mutation) {
-            if (mutation.addedNodes.length || mutation.removedNodes.length) {
-              zoomOnElement(0);
-            }
-          });
-        });
-
-        observer.observe($parent[0], {
-          childList: true,
-          subtree: true
-        });
-      };
-
-      observeDOM();
+      $(document).on('DOMNodeInserted', function(e) {
+        if ($(e.target).hasClass(settings.watchClass)) {
+          zoomOnElement(0); // Start from the first element when a new element is added
+        }
+      });
     });
   };
 }(jQuery));
