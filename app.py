@@ -56,7 +56,7 @@ PASSWORD=args.password
 defaults={}
 
 def init_SDcollage():
-    images=[]
+ 
     global defaults
     global args
    
