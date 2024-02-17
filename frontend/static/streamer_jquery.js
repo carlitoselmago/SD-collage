@@ -8,69 +8,56 @@
       transitionDuration: 5000
     }, options);
 
-    return this.each(function() {
-      var timeoutId = null;
+    var zoomOnElement = function($element) {
+      if (!$element.length) return;
 
-      var zoomOnElement = function(index) {
-        if (timeoutId) clearTimeout(timeoutId);
+      var viewportWidth = $(window).width();
+      var viewportHeight = $(window).height();
+      var elementOffset = $element.offset();
+      var elementWidth = $element.outerWidth();
+      var elementHeight = $element.outerHeight();
+      var elementCenterX = elementOffset.left + elementWidth / 2;
+      var elementCenterY = elementOffset.top + elementHeight / 2;
+      
+      // Calculate the difference between the element's center and the viewport's center
+      var deltaX = viewportWidth / 2 - elementCenterX;
+      var deltaY = viewportHeight / 2 - elementCenterY;
 
-        var $elements = $("." + settings.watchClass); // Use the document scope if elements are not strictly children of $parent
-        if ($elements.length === 0) {
-          zoomOut();
-          return;
-        }
+      // Adjust for scale
+      deltaX *= settings.scaleFactor;
+      deltaY *= settings.scaleFactor;
 
-        if (index < 0 || index >= $elements.length) {
-          index = 0; // Reset index to 0 if out of bounds
-        }
+      // Adjust the element's position to center it, factoring in the scale
+      var scaleTransform = "scale(" + settings.scaleFactor + ")";
+      var translateTransform = "translate(" + deltaX + "px, " + deltaY + "px)";
+      var combinedTransform = translateTransform + " " + scaleTransform;
 
-        var $element = $($elements[index]);
-        var elementOffset = $element.offset();
-
-        // Calculate the viewport center
-        var viewportCenterX = $(window).width() / 2;
-        var viewportCenterY = $(window).height() / 2;
-
-        // Calculate the target element's center position
-        var elementCenterX = elementOffset.left + $element.outerWidth() / 2;
-        var elementCenterY = elementOffset.top + $element.outerHeight() / 2;
-
-        // Determine the translation needed to align the element's center with the viewport's center
-        var translateX = viewportCenterX - elementCenterX;
-        var translateY = viewportCenterY - elementCenterY;
-
-        // Adjust translation to account for the scale factor
-        translateX = translateX * settings.scaleFactor - (translateX - viewportCenterX) * (settings.scaleFactor - 1);
-        translateY = translateY * settings.scaleFactor - (translateY - viewportCenterY) * (settings.scaleFactor - 1);
-
-        $('html, body').animate({
-          scrollTop: $element.offset().top - ($(window).height() - $element.outerHeight()) / 2,
-          scrollLeft: $element.offset().left - ($(window).width() - $element.outerWidth()) / 2
-        }, settings.transitionDuration);
-
-        $element.css({
-          transition: `transform ${settings.transitionDuration}ms`,
-          transform: `scale(${settings.scaleFactor})`
-        });
-
-        timeoutId = setTimeout(function() {
-          zoomOnElement((index + 1) % $elements.length);
-        }, settings.maxTime * 1000);
-      };
-
-      var zoomOut = function() {
-        if (timeoutId) clearTimeout(timeoutId);
-        $("[class^='" + settings.watchClass + "']").css({
-          transition: `transform ${settings.transitionDuration}ms`,
-          transform: 'scale(1)'
-        });
-      };
-
-      $(document).on('DOMNodeInserted', function(e) {
-        if ($(e.target).hasClass(settings.watchClass)) {
-          zoomOnElement(0); // Start from the first element when a new element is added
-        }
+      $element.css({
+        transition: `transform ${settings.transitionDuration}ms ease`,
+        transform: combinedTransform
       });
+
+      // Reset zoom after maxTime, if needed
+      setTimeout(function() {
+        $element.css({
+          transform: 'none'
+        });
+      }, settings.maxTime * 1000);
+    };
+
+    // Initial call to zoom on elements with the trigger class
+    $(document).on('DOMNodeInserted', function(e) {
+      if ($(e.target).hasClass(settings.watchClass)) {
+        var $newElement = $(e.target);
+        zoomOnElement($newElement);
+      }
     });
+
+    // Example usage: Manually trigger zoom on the first element
+    // This is a starting point; adapt as needed for your project's requirements
+    var $firstElement = $("." + settings.watchClass).first();
+    if ($firstElement.length) {
+      zoomOnElement($firstElement);
+    }
   };
 }(jQuery));
