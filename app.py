@@ -142,7 +142,7 @@ def upload_file():
         new_filename = f"00{base_name}_0_0{extension}"
         file.save(os.path.join(images_folder_path, new_filename))
 
-        time.sleep(3)
+        time.sleep(10)
         #reset backend
         init_SDcollage()
 
