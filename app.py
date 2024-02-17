@@ -147,6 +147,8 @@ def upload_file():
 
         time.sleep(1)
         #reset backend
+        users={}
+        images=[]
         init_SDcollage()
 
         #reset frontend
