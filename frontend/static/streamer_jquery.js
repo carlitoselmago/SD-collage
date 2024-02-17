@@ -1,57 +1,76 @@
 (function ($) {
+  // Define the plugin name and default options
   $.fn.streamer = function(options) {
+    // Merge the user options with the default options
     var settings = $.extend({
-      triggerClass: "trigger",
-      maxTime: 5, // seconds
-      scaleFactor: 2,
-      transitionDuration: 5000 // milliseconds
+      watchClass: "towatch", // The base class for elements to watch
+      triggerClass: "trigger", // The class of the elements that trigger the zoom
+      maxTime: 5, // The maximum time in seconds to zoom on an element
+      scaleFactor: 2, // The scale factor to zoom on an element
+      transitionDuration: 500 // The transition duration in milliseconds
     }, options);
 
+    // Return this to maintain chainability
     return this.each(function() {
-      var $parent = $(this);
-      var originalTransform = $parent.css("transform") || 'none';
+      var $parent = $(this); // Store a reference to the parent element
+      var originalTransform = $parent.css("transform"); // Store the original transform
+      var currentIndex = -1; // Current element index
+      var timeoutId = null; // Timeout id
 
-      function calculateZoomAndPosition($element) {
-        var parentOffset = $parent.offset();
-        var elementOffset = $element.offset();
-        var translateX = ((parentOffset.left + ($parent.width() / 2)) - (elementOffset.left + ($element.width() / 2))) * settings.scaleFactor;
-        var translateY = ((parentOffset.top + ($parent.height() / 2)) - (elementOffset.top + ($element.height() / 2))) * settings.scaleFactor;
+      // Function to zoom on an element by index
+      var zoomOnElement = function(index) {
+        if (timeoutId) clearTimeout(timeoutId); // Clear previous timeout
 
-        return {
-          translateX: -translateX / settings.scaleFactor,
-          translateY: -translateY / settings.scaleFactor,
-          scale: settings.scaleFactor
-        };
-      }
+        var $elements = $parent.find("." + settings.watchClass); // Find elements to watch
+        if ($elements.length === 0) {
+          zoomOut(); // Zoom out if no elements
+          return;
+        }
 
-      function zoomOnElement($element) {
-        var { translateX, translateY, scale } = calculateZoomAndPosition($element);
+        index = index % $elements.length; // Wrap index
+        currentIndex = index; // Update current index
 
+        var $element = $($elements[index]); // Get the target element
+        var elOffset = $element.offset(); // Element's offset
+        var parentOffset = $parent.offset(); // Parent's offset
+
+        // Calculate the position of the element relative to the parent
+        var relTop = elOffset.top - parentOffset.top;
+        var relLeft = elOffset.left - parentOffset.left;
+
+        // Adjust translations to center the element
+        var translateX = -relLeft + ($parent.width() / 2) - ($element.width() * settings.scaleFactor / 2);
+        var translateY = -relTop + ($parent.height() / 2) - ($element.height() * settings.scaleFactor / 2);
+
+        // Apply CSS transformations
         $parent.css({
-          transition: `transform ${settings.transitionDuration}ms ease`,
-          transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`
+          transition: `transform ${settings.transitionDuration}ms`,
+          transform: `translate(${translateX}px, ${translateY}px) scale(${settings.scaleFactor})`
         });
-      }
 
-      function zoomOut() {
+        // Set timeout to move to the next element
+        timeoutId = setTimeout(function () {
+          zoomOnElement(currentIndex + 1);
+        }, settings.maxTime * 1000);
+      };
+
+      // Function to reset zoom
+      var zoomOut = function() {
+        if (timeoutId) clearTimeout(timeoutId);
         $parent.css({
-          transition: `transform ${settings.transitionDuration}ms ease`,
+          transition: `transform ${settings.transitionDuration}ms`,
           transform: originalTransform
         });
-      }
+      };
 
-      // Event delegation for dynamically added elements
-      $(document).on('click', `.${settings.triggerClass}`, function() {
-        if ($(this).closest($parent).length) { // Ensure the clicked element is a child of the parent
-          zoomOnElement($(this));
-        }
+      // Listen for clicks on trigger elements to start zoom
+      $parent.on('click', '.' + settings.triggerClass, function() {
+        var index = $(this).index('.' + settings.triggerClass);
+        zoomOnElement(index);
       });
 
-      // Automatic zoom out after a set duration
-      setInterval(function() {
-        zoomOut();
-      }, settings.maxTime * 1000 + settings.transitionDuration);
-
+      // Optionally, initialize zoom on the first element
+      // zoomOnElement(0); // Uncomment to start zooming on the first element
     });
   };
 }(jQuery));
