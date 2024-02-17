@@ -56,9 +56,10 @@ PASSWORD=args.password
 defaults={}
 
 def init_SDcollage():
+    images=[]
     global defaults
     global args
-    images=[]
+   
     if args.startimage:
         imgs=os.listdir(imagesfolder)
         imgs.sort(key=str.lower)
@@ -71,13 +72,13 @@ def init_SDcollage():
             "height":bgimage.size[1],
             "firstimagewait":300 #in milliseconds
         }
-        images=[bgimage]
+        
         del bgimage
 
 
     imgs=glob.glob(imagesfolder+"*.jpg")
     imgs.sort(key=str.lower)
-    #print("IMAGESSS",imgs)
+    print("IMAGESSS",imgs)
     for file in imgs:
         img=file.split("_")
         newimage={"imguri":file,"x":img[1],"y":img[2].split(".")[0]}
