@@ -58,6 +58,7 @@ defaults={}
 def init_SDcollage():
     global defaults
     global args
+    images=[]
     if args.startimage:
         imgs=os.listdir(imagesfolder)
         imgs.sort(key=str.lower)
@@ -142,7 +143,7 @@ def upload_file():
         new_filename = f"00{base_name}_0_0{extension}"
         file.save(os.path.join(images_folder_path, new_filename))
 
-        time.sleep(10)
+        time.sleep(1)
         #reset backend
         init_SDcollage()
 
