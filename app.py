@@ -119,6 +119,8 @@ def config():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    global images
+    global users
     if 'file' not in request.files:
         flash('No file part', 'danger')
         return redirect(request.url)
