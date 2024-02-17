@@ -23,24 +23,30 @@
         }
 
         if (index < 0 || index >= $elements.length) {
-          index = 0; // Reset index to 0 if out of bounds
+          index = 0;
         }
 
         var $element = $($elements[index]);
         var elementOffset = $element.offset();
         var parentOffset = $parent.offset();
+        var parentCenterX = $parent.width() / 2;
+        var parentCenterY = $parent.height() / 2;
 
-        // Calculate the new translation values to center the element
-        var centerX = (parentOffset.left + $parent.width() / 2) - (elementOffset.left + $element.outerWidth() / 2);
-        var centerY = (parentOffset.top + $parent.height() / 2) - (elementOffset.top + $element.outerHeight() / 2);
+        // Calculate the element's center position
+        var elementCenterX = elementOffset.left - parentOffset.left + $element.outerWidth() / 2;
+        var elementCenterY = elementOffset.top - parentOffset.top + $element.outerHeight() / 2;
 
-        // Adjust translations based on the scaleFactor
-        var adjustedX = centerX * settings.scaleFactor;
-        var adjustedY = centerY * settings.scaleFactor;
+        // Calculate the translation needed to center the element
+        var translateX = parentCenterX - elementCenterX;
+        var translateY = parentCenterY - elementCenterY;
+
+        // Adjust translation based on the scale factor
+        translateX = translateX * settings.scaleFactor - (translateX - translateX / settings.scaleFactor);
+        translateY = translateY * settings.scaleFactor - (translateY - translateY / settings.scaleFactor);
 
         $parent.css({
           transition: `transform ${settings.transitionDuration}ms`,
-          transform: `translate(${adjustedX}px, ${adjustedY}px) scale(${settings.scaleFactor})`
+          transform: `translate(${translateX}px, ${translateY}px) scale(${settings.scaleFactor})`
         });
 
         timeoutId = setTimeout(function() {
@@ -60,7 +66,7 @@
         var observer = new MutationObserver(function(mutations) {
           mutations.forEach(function(mutation) {
             if (mutation.addedNodes.length || mutation.removedNodes.length) {
-              zoomOnElement(0); // Start from the first element when new elements are added
+              zoomOnElement(0);
             }
           });
         });
