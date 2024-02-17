@@ -12,7 +12,7 @@ $.fn.streamer = function(options) {
     // The maximum time in seconds to zoom on an element
     maxTime: 5,
     // The scale factor to zoom on an element
-    scaleFactor: 2,
+    scaleFactor: 1.5,
     // The transition duration in milliseconds
     transitionDuration: 5000
   }, options);
