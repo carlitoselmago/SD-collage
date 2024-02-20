@@ -54,7 +54,7 @@ $(document).ready(function () {
         console.log("streamer mode");
         window.streamer=$("#wrap").streamer({
             "watchClass":"otherbox",
-            "triggerClass":"prompting",
+            "triggerClass":"prompting", 
             "maxTime":15
         });
 
