@@ -17,7 +17,7 @@ $.fn.streamer = function(options) {
     transitionDuration: 5000
   }, options);
 
-
+/*
 
  
 
@@ -142,6 +142,6 @@ $.fn.streamer = function(options) {
  
   });
 
- 
+ */
 };
 }(jQuery));

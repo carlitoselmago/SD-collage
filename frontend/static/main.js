@@ -80,7 +80,7 @@ $(document).ready(function () {
             var randomIndex = Math.floor(Math.random() * window.voices.length);
             var randomVoice = window.voices[randomIndex];
             window.speech.voice = randomVoice;
-            window.speech.text = newprompt.prompt;
+            window.speech.text = newprompt.prompt.slice(0,60);
             window.speechSynthesis.speak(speech);
         }
         
@@ -102,7 +102,7 @@ $(document).ready(function () {
             window.speech.onend = function(event) {
                // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
                //if (window.promptqueue.length>0){
-                window.promptqueue.push(newprompt.slice(0,60));
+                window.promptqueue.push(newprompt);
               TTS_speak(window.promptqueue.shift());
                //} 
             };
@@ -229,7 +229,7 @@ $(document).ready(function () {
         //user just sent a prompt, the image is not ready yet
         if (window.streamer){
             if ("promptqueue" in window){
-              window.promptqueue.push(newprompt.slice(0,60));
+              window.promptqueue.push(newprompt);
               TTS_speak(window.promptqueue.shift());
             }
         }
