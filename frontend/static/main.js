@@ -101,10 +101,10 @@ $(document).ready(function () {
             window.speech.lang = "en-US";
             window.speech.onend = function(event) {
                // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
-               if (window.promptqueue.length>0){
-                window.promptqueue.push(newprompt);
+               //if (window.promptqueue.length>0){
+                window.promptqueue.push(newprompt.slice(0,60));
               TTS_speak(window.promptqueue.shift());
-               }
+               //} 
             };
         
           }
@@ -229,7 +229,7 @@ $(document).ready(function () {
         //user just sent a prompt, the image is not ready yet
         if (window.streamer){
             if ("promptqueue" in window){
-              window.promptqueue.push(newprompt);
+              window.promptqueue.push(newprompt.slice(0,60));
               TTS_speak(window.promptqueue.shift());
             }
         }
