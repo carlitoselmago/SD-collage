@@ -76,11 +76,13 @@ $(document).ready(function () {
         }
 
         function TTS_speak(newprompt){
-            console.log("speak",newprompt);
+           
             var randomIndex = Math.floor(Math.random() * window.voices.length);
             var randomVoice = window.voices[randomIndex];
             window.speech.voice = randomVoice;
-            window.speech.text = newprompt.prompt.slice(0,60);
+            var text=newprompt.prompt.slice(0,60);
+            console.log("TEXT TO TTS:",text)
+            window.speech.text = text;
             window.speechSynthesis.speak(speech);
         }
         
@@ -101,10 +103,10 @@ $(document).ready(function () {
             window.speech.lang = "en-US";
             window.speech.onend = function(event) {
                // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
-               //if (window.promptqueue.length>0){
+               if (window.promptqueue.length>0){
                 window.promptqueue.push(newprompt);
               TTS_speak(window.promptqueue.shift());
-               //} 
+               } 
             };
         
           }
