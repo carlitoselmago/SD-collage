@@ -105,6 +105,7 @@ $(document).ready(function () {
             window.speech.pitch = 1; //0 to 2
             window.speech.lang = "en-US";
             window.speech.onend = function(event) {
+                window.speechSynthesis.pause();window.speechSynthesis.resume();
                // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
                if (window.promptqueue.length>0){
                 window.promptqueue.push(newprompt);
