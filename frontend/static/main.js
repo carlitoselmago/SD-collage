@@ -230,6 +230,7 @@ $(document).ready(function () {
         console.log('newprompt',newprompt);
         //user just sent a prompt, the image is not ready yet
         if (window.streamer){
+            console.log("passed prompt to tts");
             if ("promptqueue" in window){
               window.promptqueue.push(newprompt);
               TTS_speak(window.promptqueue.shift());
