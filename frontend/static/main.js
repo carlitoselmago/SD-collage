@@ -83,7 +83,7 @@ $(document).ready(function () {
             var randomIndex = Math.floor(Math.random() * window.voices.length);
             var randomVoice = window.voices[randomIndex];
             window.speech.voice = randomVoice;
-            var text=newprompt.prompt.slice(0,50);
+            var text=newprompt.prompt.slice(0,40);
             console.log("TEXT TO TTS:",text)
             window.speech.text = text;
             window.speechSynthesis.speak(speech);
