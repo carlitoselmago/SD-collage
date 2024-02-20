@@ -52,11 +52,14 @@ $(document).ready(function () {
         initialScale=1.1;
         
         console.log("streamer mode");
+        window.streamer=True;
+        /*
         window.streamer=$("#wrap").streamer({
             "watchClass":"otherbox",
             "triggerClass":"prompting", 
             "maxTime":15
         });
+        */
 
 
         function setSpeech() {
