@@ -3,7 +3,7 @@ window.firstpaint = true
 
 
 const canvasContainer = document.getElementById('canvas');
-const cont='2d';
+const cont = '2d';
 const canvasWidth = $("body").attr("width");
 const canvasHeight = $("body").attr("height");
 const firstimagewait = parseInt($("body").attr("firstimagewait"));
@@ -13,28 +13,28 @@ canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 canvas.setAttribute("id", "maincanvas");
 const context = canvas.getContext(cont, { willReadFrequently: true });
-window.streamer=false;
+window.streamer = false;
 //check canvas size
 var isValidCanvas = canvasSize.test({
-    width : canvasWidth,
+    width: canvasWidth,
     height: canvasHeight
-  });
+});
 
-if (!isValidCanvas){
+if (!isValidCanvas) {
     $("#killer h1").text("Your browser does not support this canvas size, please use a desktop browser like Firefox/Chrome/Edge")
-    $("#killer").css({"display":"flex"});
+    $("#killer").css({ "display": "flex" });
 }
 
 
-const padding=0; //padding for adding context when inpainting
-const baseSize=512; //size for the images generated
+const padding = 0; //padding for adding context when inpainting
+const baseSize = 512; //size for the images generated
 
-const updateinterval=15000; //in milliseconds
+const updateinterval = 15000; //in milliseconds
 
-var gensize=baseSize;
+var gensize = baseSize;
 
-if (padding>0){
-    gensize+=(padding*2);
+if (padding > 0) {
+    gensize += (padding * 2);
 }
 
 $("#main").css("width", canvasWidth + "px");
@@ -44,15 +44,15 @@ canvasContainer.appendChild(canvas);
 
 var socket;
 var loadedimages = {};
-var firstloaded=false;
+var firstloaded = false;
 
 $(document).ready(function () {
-    let initialScale=1.5;
-    if ($("body").hasClass("streamer")){
-        initialScale=1.1;
-        
+    let initialScale = 1.5;
+    if ($("body").hasClass("streamer")) {
+        initialScale = 1.1;
+
         console.log("streamer mode");
-        window.streamer=true;
+        window.streamer = true;
         /*
         window.streamer=$("#wrap").streamer({
             "watchClass":"otherbox",
@@ -61,7 +61,7 @@ $(document).ready(function () {
         });
         */
 
-
+        /*
         function setSpeech() {
             return new Promise(
                 function (resolve, reject) {
@@ -77,57 +77,131 @@ $(document).ready(function () {
                 }
             )
         }
+        */
+        function loadVoices() {
+            return new Promise((resolve) => {
+                let synth = window.speechSynthesis;
+                let id = setInterval(() => {
+                    let voices = synth.getVoices();
+                    if (voices.length !== 0) {
+                        resolve(voices);
+                        clearInterval(id);
+                    }
+                }, 10);
+            });
+        }
 
-        function TTS_speak(newprompt){
-           
+        function TTS_speak(newprompt) {
+            if (!window.voices || window.voices.length === 0) {
+                console.error("No voices loaded");
+                return;
+            }
+        
+            // Choose a random voice and prepare the speech
+            let randomIndex = Math.floor(Math.random() * window.voices.length);
+            let randomVoice = window.voices[randomIndex];
+            let utterance = new SpeechSynthesisUtterance(newprompt.prompt.slice(0, 140));
+            utterance.voice = randomVoice;
+        
+            console.log("Using voice:", randomVoice.name);
+            console.log("Text to TTS:", utterance.text);
+        
+            window.speechSynthesis.speak(utterance);
+            /*
             var randomIndex = Math.floor(Math.random() * window.voices.length);
             var randomVoice = window.voices[randomIndex];
             window.speech.voice = randomVoice;
-            var text=newprompt.prompt.slice(0,40);
-            console.log("TEXT TO TTS:",text)
+            console.log(window.speech.voice);
+            var text = newprompt.prompt.slice(0, 40);
+            console.log("TEXT TO TTS:", text)
             window.speech.text = text;
+            console.log(window.speechSynthesis);
+            console.log("is speaking?",window.speechSynthesis.speaking)
+            
             window.speechSynthesis.speak(speech);
+            */
         }
+
+        function TTS_init(resetQeue=true) {
+            if (resetQeue) {
+                window.promptqueue = [];
+            }
         
-        function TTS_init(){
-            window.promptqueue=[];
+            // Load voices and store them globally
+            loadVoices().then((voices) => {
+                window.voices = voices;
+                console.log("Voices loaded:", voices.map(voice => voice.name));
+            });
+            var stuckcount=0;
+            var stuckmax=60;
+            // Set up a periodic check to dequeue and speak prompts
+            setInterval(() => {
+                //console.log(window.speechSynthesis);
+                if ((!window.speechSynthesis.speaking) && window.promptqueue.length > 0) {
+                    TTS_speak(window.promptqueue.shift());
+                    stuckcount=0;
+                } else {
+                    stuckcount+=1;
+                    //console.log(stuckcount);
+                    if (stuckcount>stuckmax){
+                        console.log("SPEACH STUCK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! reseting")
+                        window.speechSynthesis.cancel();
+                        stuckcount=0
+                    }
+                }
+            }, 200);
+            /*
+            if (resetQeue){
+                window.promptqueue = [];
+            }
+            
             window.speech = new SpeechSynthesisUtterance();
-            window.voices=[];
+            window.voices = [];
             setTimeout(() => {
                 let s = setSpeech();
                 s.then((v) => {
-                    window.voices=v;
-                    console.log("voices",voices);
+                    window.voices = v;
+                    console.log("voices", voices);
                 });
             });
             window.speech.volume = 1; // 0 to 1
             window.speech.rate = 1; // 0.1 to 10
             window.speech.pitch = 1; //0 to 2
             window.speech.lang = "en-US";
-            window.speech.onend = function(event) {
-                window.speechSynthesis.pause();window.speechSynthesis.resume();
-               // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
-               if (window.promptqueue.length>0){
-                window.promptqueue.push(newprompt);
-              TTS_speak(window.promptqueue.shift());
-               } 
+
+            //start TTS daemon
+            setInterval(function () {
+                if (!window.speechSynthesis.speaking && window.promptqueue.length>0){
+                    TTS_speak(window.promptqueue.shift());
+                }
+            }, 300);
+
+            window.speech.onend = function (event) {
+                    console.log("finished speaking");
+                    //window.speechSynthesis.pause(); window.speechSynthesis.resume();
+                    // console.log('Speech has finished after ' + event.elapsedTime + ' milliseconds.');
+                   // if (window.promptqueue.length > 0) {
+                       // window.promptqueue.push(newprompt);
+                     //   TTS_speak(window.promptqueue.shift());
+               //     }
+               
             };
-        
-          }
-        
-        
-        document.getElementById('initstreamer').addEventListener('click', function(e) {
+            */
+        }
+
+
+        document.getElementById('initstreamer').addEventListener('click', function (e) {
             e.preventDefault();
             TTS_init();
             $('#initstreamer').remove();
-            });
+        });
     }
 
-    $("#loading").css({"display":"flex"});
+    $("#loading").css({ "display": "flex" });
     $("#prompter .info.maininfo").show();
-    let protocol="http";
-    if ($("body").hasClass("ssl")){
-        protocol="https";
+    let protocol = "http";
+    if ($("body").hasClass("ssl")) {
+        protocol = "https";
     }
 
     window.addEventListener('wheel', function (e) {
@@ -137,12 +211,12 @@ $(document).ready(function () {
     $("#minicanvas").css("width", gensize + "px");
     $("#minicanvas").css("height", gensize + "px");
     $("#minicanvas").attr("width", gensize);
-    $("#minicanvas").attr("height",gensize);
+    $("#minicanvas").attr("height", gensize);
 
     const minicanvas = document.getElementById('minicanvas');
     const minicontext = minicanvas.getContext(cont, { willReadFrequently: true });
 
-   
+
     $("#prompt").focus();
 
     $("#prompter").on("click", function (e) {
@@ -151,7 +225,7 @@ $(document).ready(function () {
 
     //init scale
     $("#main").panZoom({
-        initialScale:initialScale,
+        initialScale: initialScale,
         onstop: function () {
             $("#prompt").focus();
         }
@@ -182,7 +256,7 @@ $(document).ready(function () {
         //boxSize = 512;
 
         //let baseimg = context.getImageData(x, y, boxSize, boxSize);
-        let baseimg = context.getImageData(x-padding, y-padding, gensize, gensize);
+        let baseimg = context.getImageData(x - padding, y - padding, gensize, gensize);
 
         minicontext.putImageData(baseimg, 0, 0);
 
@@ -197,22 +271,22 @@ $(document).ready(function () {
         return false;
     });
 
-   
+
 
     //SOCKET:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    socket = io.connect(protocol+'://' + document.domain + ':' + location.port);
+    socket = io.connect(protocol + '://' + document.domain + ':' + location.port);
 
     socket.on('connect', function (data) {
         console.log("connected");
         boxChange("joined");
         setTimeout(() => {
-          socket.emit("backendstatus");
+            socket.emit("backendstatus");
         }, 1000);
 
         console.log("asking for status")
-        const interval = setInterval(function() {
+        const interval = setInterval(function () {
             socket.emit('getupdates');
-          }, updateinterval);
+        }, updateinterval);
     });
     socket.on('reset', function (newprompt) {
         iziToast.show({
@@ -220,60 +294,60 @@ $(document).ready(function () {
             message: 'A new canvas incoming, automatic refresh in 5 seconds',
             position: "topCenter",
             //timeout:false,
-            displayMode:"replace"
+            displayMode: "replace"
         });
-        $("#inputs").fadeOut("fast",function(){
+        $("#inputs").fadeOut("fast", function () {
             $(this).remove();
         });
         setTimeout(() => {
             location.reload();
-          }, "5000");
-       
+        }, "5000");
+
     })
     socket.on('newprompt', function (newprompt) {
-        console.log('newprompt',newprompt);
+        console.log('newprompt', newprompt);
         //user just sent a prompt, the image is not ready yet
-        if (window.streamer){
-            console.log("passed prompt to tts");
-            if ("promptqueue" in window){
-              window.promptqueue.push(newprompt);
-              TTS_speak(window.promptqueue.shift());
+        if (window.streamer) {
+           // console.log("passed prompt to tts");
+            if ("promptqueue" in window) {
+                window.promptqueue.push(newprompt);
+               // TTS_speak(window.promptqueue.shift());
             }
         }
     });
     socket.on('newimage', function (images) {
         //console.log("newimage!!!",images);
         console.log("new images socket")
-        if (images.length==0){
+        if (images.length == 0) {
             $("#loading").remove();
         }
-        if (!firstloaded){
+        if (!firstloaded) {
             preloadImages(images);
-            firstloaded=true;
+            firstloaded = true;
         } else {
             updateImages(images);
         }
     });
 
     socket.on('backendresponse', function (data) {
-      //console.log("backend status response",data)
-      console.log("backendresponse",data["status"]);
-      if (data["status"]===false){
-        engineDown();
-      } else {
-        engineUp();
-      }
+        //console.log("backend status response",data)
+        console.log("backendresponse", data["status"]);
+        if (data["status"] === false) {
+            engineDown();
+        } else {
+            engineUp();
+        }
 
     });
 
 
     socket.on('promptready', function (data) {
         //finished prompting
-        console.log("promptready",data,data["status"])
+        console.log("promptready", data, data["status"])
         if (!data["status"]) {
-          console.log("MARK STATUS DOWN!!!!");
-          $("#prompt").val("");
-          engineDown();
+            console.log("MARK STATUS DOWN!!!!");
+            $("#prompt").val("");
+            engineDown();
         }
         if (data["sid"] === $("#sid").text()) {
             $("#prompter .info.maininfo").show();
@@ -282,9 +356,9 @@ $(document).ready(function () {
             console.log("its my prompt!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", data["sid"])
             $("#prompt").val("");
         } else {
-            console.log("finished prompt for other",data["sid"])
-            $("#"+data["sid"]+" .prompt").text("");
-            $("#"+data["sid"]).removeClass("prompting");
+            console.log("finished prompt for other", data["sid"])
+            $("#" + data["sid"] + " .prompt").text("");
+            $("#" + data["sid"]).removeClass("prompting");
         }
     });
 
@@ -301,7 +375,7 @@ $(document).ready(function () {
             window.sid = data["sid"];
             $("#sid").text(data["sid"]);
             $("#me").text(sessionIdToEmoji(data["sid"]))
-            if ($("body").hasClass("streamer")){
+            if ($("body").hasClass("streamer")) {
                 socket.emit("ghostuser")
             }
         }
@@ -313,7 +387,7 @@ $(document).ready(function () {
     });
 
     socket.on("disconnect", () => {
-    //  console.log(socket.id); // undefined
+        //  console.log(socket.id); // undefined
     });
 
     function leave_room() {
@@ -331,14 +405,14 @@ function createOtherBox(sid, box) {
 
 function renderImages(images) {
     console.log("all preloaded");
-    let c=0;
+    let c = 0;
     images.forEach(imag => {
-        if (c==0){
+        if (c == 0) {
             //drawImage(context,imag["img"], imag["x"], imag["y"]);
-            context.drawImage(imag["img"], imag["x"], imag["y"],canvasWidth,canvasHeight);
-        } else{
-            context.drawImage(imag["img"], imag["x"]-padding, imag["y"]-padding);
-           // context.drawImage(imag["img"], imag["x"]-padding, imag["y"]-padding,gensize,gensize);
+            context.drawImage(imag["img"], imag["x"], imag["y"], canvasWidth, canvasHeight);
+        } else {
+            context.drawImage(imag["img"], imag["x"] - padding, imag["y"] - padding);
+            // context.drawImage(imag["img"], imag["x"]-padding, imag["y"]-padding,gensize,gensize);
         }
         c++;
     });
@@ -350,7 +424,7 @@ function preloadImages(topreload) {
     console.log("preloadimages")
     let images = [];
     let imageCount = 0;
-    $("#loadcount").text("0/"+topreload.length);
+    $("#loadcount").text("0/" + topreload.length);
     topreload.forEach(img => {  // for each image url
         if (loadedimages[img["imguri"]] === undefined) {
             loadedimages[img["imguri"]] = true;
@@ -358,7 +432,7 @@ function preloadImages(topreload) {
             image.src = img["imguri"];
             image.onload = () => {
                 imageCount += 1;
-                $("#loadcount").text((imageCount+1)+"/"+topreload.length);
+                $("#loadcount").text((imageCount + 1) + "/" + topreload.length);
                 //console.log(imageCount,topreload.length);
                 if (imageCount === topreload.length) { // have all loaded????
                     renderImages(images);
@@ -385,7 +459,7 @@ function putinCanvas(newimage) {
         base_image = new Image();
         base_image.src = newimage["imguri"];
         base_image.onload = function () {
-            context.drawImage(this, newimage["x"]-padding, newimage["y"]-padding,gensize,gensize);
+            context.drawImage(this, newimage["x"] - padding, newimage["y"] - padding, gensize, gensize);
         }
     }
 }
@@ -402,15 +476,15 @@ function manageOthers(boxes) {
         if (target.length) {
             target.css("left", v["box"][0]);
             target.css("top", v["box"][1]);
-            if (v["prompt"] !== undefined){
-                if (v["prompt"].length>0){
+            if (v["prompt"] !== undefined) {
+                if (v["prompt"].length > 0) {
                     $(".prompt", target).text(v["prompt"]);
-                    if (!target.hasClass("prompting")){
+                    if (!target.hasClass("prompting")) {
                         target.addClass("prompting");
                     }
                 }
-            } else{
-                $("#"+sid).removeClass("prompting");
+            } else {
+                $("#" + sid).removeClass("prompting");
             }
 
         } else {
@@ -453,38 +527,38 @@ function sessionIdToEmoji(sessionId) {
     return emoji;
 }
 
-function engineUp(){
-  if ($("body").hasClass("enginedown")){
-    $("body").removeClass("enginedown");
-    var toast = document.querySelector('.iziToast');
-    if (toast){
-      iziToast.hide({}, toast);
+function engineUp() {
+    if ($("body").hasClass("enginedown")) {
+        $("body").removeClass("enginedown");
+        var toast = document.querySelector('.iziToast');
+        if (toast) {
+            iziToast.hide({}, toast);
+        }
+        iziToast.show({
+            //title: '',
+            message: 'Image generator engine is restored, you can prompt now',
+            position: "topCenter",
+            //timeout:false,
+            displayMode: "replace"
+        });
     }
-    iziToast.show({
-        //title: '',
-        message: 'Image generator engine is restored, you can prompt now',
-        position: "topCenter",
-        //timeout:false,
-        displayMode:"replace"
-    });
-  }
 }
 
-function engineDown(){
+function engineDown() {
 
-  if (!$("body").hasClass("enginedown")){
-    iziToast.show({
-        //title: '',
-        message: 'Image generator engine is off',
-        position: "topCenter",
-        timeout:false,
-        displayMode:"replace"
-    });
-  }
-  $("body").addClass("enginedown");
+    if (!$("body").hasClass("enginedown")) {
+        iziToast.show({
+            //title: '',
+            message: 'Image generator engine is off',
+            position: "topCenter",
+            timeout: false,
+            displayMode: "replace"
+        });
+    }
+    $("body").addClass("enginedown");
 
-  setTimeout(() => {
-    console.log("checking again for backend status");
-    socket.emit("backendstatus");
-  }, 20000);
+    setTimeout(() => {
+        console.log("checking again for backend status");
+        socket.emit("backendstatus");
+    }, 20000);
 }
