@@ -21,10 +21,10 @@ class imageGenerator():
     steps=2
 
     #latent consistency settings (x10 speed)
-    steps=4
+    steps=2
     image_cfg_scale=1#7
-    preprompt="<lora:pytorch_lora_weights:1> "
-    negative_prompt=""
+    #preprompt="<lora:pytorch_lora_weights:1> "
+    negative_prompt="text, watermark"
 
     def __init__(self,savefolder="",url="",bgimage=False):
         self.session = Session()
