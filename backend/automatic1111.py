@@ -17,11 +17,11 @@ class imageGenerator():
 
     negative_prompt="(text), letters, watermark"
     preprompt=""
-    image_cfg_scale=1
+    image_cfg_scale=7
     steps=2
 
     #latent consistency settings (x10 speed)
-    steps=2
+    steps=4
     image_cfg_scale=1#7
     #preprompt="<lora:pytorch_lora_weights:1> "
     negative_prompt="text, watermark"
