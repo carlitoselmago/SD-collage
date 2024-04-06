@@ -17,8 +17,8 @@ class imageGenerator():
 
     negative_prompt="(text), letters, watermark"
     preprompt=""
-    image_cfg_scale=7
-    steps=12
+    image_cfg_scale=1
+    steps=2
 
     #latent consistency settings (x10 speed)
     steps=4
