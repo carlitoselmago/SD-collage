@@ -40,8 +40,14 @@ app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024 * 1024  # 1 GB limit
 app.secret_key = str(os.getpid())
 imagesfolder="images/"
 
-users={}
-images=[]
+#users={}
+#images=[]
+R=[]
+
+rooms=3 #amount of rooms you wanna create
+
+for r in range(rooms):
+    R.append({'users':{},'images':{}})
 
 parser = argparse.ArgumentParser( prog = 'SD-collage')
 parser.add_argument('-s', '--startimage',action='store_true',help='If true, use first image found as bg image')
@@ -50,8 +56,10 @@ parser.add_argument('-ssl', '--runinssl',action='store_true')
 parser.add_argument('-url', '--sdengineurl',help='Especifies the url of the sd generator')
 args = parser.parse_args()
 
-IG=imageGenerator(imagesfolder,args.sdengineurl,args.sdengineurl)
-PASSWORD=args.password
+for i,r in enumerate(R):
+    R[i]['IG']=imageGenerator(imagesfolder+str(i)+'/',args.sdengineurl,args.sdengineurl)
+    R[i]['PASSWORD']=args.password
+ 
 
 defaults={}
 
@@ -61,34 +69,35 @@ def init_SDcollage():
     global args
    
     if args.startimage:
-        imgs=os.listdir(imagesfolder)
-        imgs.sort(key=str.lower)
-        bgimage=imgs[0]
-        #print("Grabbing the first image as background template:",bgimage)
-        bgimage=Image.open(imagesfolder+bgimage)#args.startimage)
-        #tileImage(bgimage)
-        defaults={
-            "width":bgimage.size[0],
-            "height":bgimage.size[1],
-            "firstimagewait":300 #in milliseconds
-        }
-        
-        del bgimage
+        for i,r in enumerate(R):
+            R[i]['imgs']=os.listdir(imagesfolder+str(i)+'/')
+            R[i]['imgs'].sort(key=str.lower)
+            R[i]['bgimage']=R[i]['imgs'][0]
+            #print("Grabbing the first image as background template:",bgimage)
+            R[i]['bgimage']=Image.open(imagesfolder+str(i)+'/'+R[i]['bgimage'])#args.startimage)
+            #tileImage(bgimage)
+            defaults={
+                "width":R[i]['bgimage'].size[0],
+                "height":R[i]['bgimage'].size[1],
+                "firstimagewait":300 #in milliseconds
+            }
+            
+            del R[i]['bgimage']
 
-
-    imgs=glob.glob(imagesfolder+"*.jpg")
-    imgs.sort(key=str.lower)
-    print("IMAGESSS",imgs)
-    for file in imgs:
-        img=file.split("_")
-        newimage={"imguri":file,"x":img[1],"y":img[2].split(".")[0]}
-        images.append(newimage)
+    for i,r in enumerate(R):
+        R[i]['imgs']=glob.glob(imagesfolder+str(i)+'/'+"*.jpg")
+        R[i]['imgs'].sort(key=str.lower)
+        print("IMAGESSS",R[i]['imgs'])
+        for file in R[i]['imgs']:
+            img=file.split("_")
+            newimage={"imguri":file,"x":img[1],"y":img[2].split(".")[0]}
+            R[i]['images'].append(newimage)
 
 init_SDcollage()
 
 
-@app.route('/')
-def main():
+@app.route('/<int:room>/')
+def main(room):
     mode = request.args.get('mode', default = "", type = str)
     defaults["mode"]=mode
     if args.runinssl:
@@ -99,16 +108,17 @@ def main():
         defaults["mode"]+=" startimage"
     return render_template('index.html',defaults=defaults)
 
-@app.route('/images/<path:filename>')
-def base_static(filename):
-    return send_from_directory(app.root_path + '/images/', filename)
+@app.route('/<int:room>/images/<path:filename>')
+def base_static(room,filename):
+    return send_from_directory(app.root_path +'/'+str(room)+ '/images/', filename)
 
 
-@app.route('/config', methods=['GET', 'POST'])
-def config():
+@app.route('/<int:room>/config', methods=['GET', 'POST'])
+def config(room):
+    global R
     if request.method == 'POST':
         password = request.form.get('password')
-        if password == PASSWORD:
+        if password == R[room]['PASSWORD']:
             # Password is correct, proceed to file upload page
             return render_template('upload.html')
         else:
@@ -117,8 +127,9 @@ def config():
     # Show password form
     return render_template('config.html')
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
+@app.route('/<int:room>/upload', methods=['POST'])
+def upload_file(room):
+    global R
     global images
     global users
     if 'file' not in request.files:
@@ -302,7 +313,7 @@ def isUp(url,socketio,sid):
             status=True
     except:
         pass
-    print("STATUS",status,"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+    #print("STATUS",status,"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
     socketio.emit('backendresponse', {"status":status},room=sid)
     #return status
 
