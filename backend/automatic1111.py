@@ -27,8 +27,10 @@ class imageGenerator():
     negative_prompt="text, watermark"
 
     #turbo model
-    image_cfg_scale=1
     steps=4
+    image_cfg_scale=1
+    preprompt=""
+    negative_prompt="(text), letters, watermark"
 
     def __init__(self,savefolder="",url="",bgimage=False):
         self.session = Session()
