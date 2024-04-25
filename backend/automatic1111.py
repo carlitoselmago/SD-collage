@@ -14,17 +14,21 @@ import threading
 import cv2
 
 class imageGenerator():
-
+    #normal 2.1 model
     negative_prompt="(text), letters, watermark"
     preprompt=""
     image_cfg_scale=7
-    steps=2
+    steps=14
 
-    #latent consistency settings (x10 speed)
+    #2.1 model + latent consistency settings (lora) (x10 speed)
     steps=4
-    image_cfg_scale=1#7
-    #preprompt="<lora:pytorch_lora_weights:1> "
+    image_cfg_scale=7
+    preprompt="<lora:pytorch_lora_weights:1> "
     negative_prompt="text, watermark"
+
+    #turbo model
+    image_cfg_scale=1
+    steps=4
 
     def __init__(self,savefolder="",url="",bgimage=False):
         self.session = Session()
