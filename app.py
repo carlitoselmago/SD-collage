@@ -94,7 +94,6 @@ def main():
     if args.runinssl:
         defaults["mode"]+=" ssl"
     
-    
     if args.startimage:
         defaults["mode"]+=" startimage"
     return render_template('index.html',defaults=defaults)

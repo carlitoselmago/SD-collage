@@ -167,10 +167,12 @@ body.startimage .box{
     -webkit-border-radius: 0 12px 12px 0;
     border-radius: 0 12px 12px 0;
 }
-body.streamer {
+body.streamer,body.follower {
     background-color: black;
+    cursor:none !important;
 }
-body.streamer #inputs,body.streamer #me,body.streamer #prompter{
+body.streamer #inputs,body.streamer #me,body.streamer #prompter,
+body.follower #inputs,body.follower #me,body.follower #prompter{
     display: none !important;
 }
 body.streamer #initstreamer{
@@ -191,6 +193,10 @@ body.streamer #initstreamer{
     align-items: center;
     justify-content: center;
     text-decoration: none;
+}
+body.streamer #main,
+body.follower #main {
+    cursor: none !important;
 }
 
 #promptform {

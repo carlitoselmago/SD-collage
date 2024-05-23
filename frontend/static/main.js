@@ -48,19 +48,25 @@ var firstloaded = false;
 
 $(document).ready(function () {
     let initialScale = 1.5;
-    if ($("body").hasClass("streamer")) {
-        initialScale = 1.1;
 
-        console.log("streamer mode");
-        window.streamer = true;
-        /*
+    if ($("body").hasClass("follower")) {
+
         window.streamer=$("#wrap").streamer({
             "watchClass":"otherbox",
             "triggerClass":"prompting", 
             "maxTime":15
         });
-        */
+    }
+    
 
+
+    if ($("body").hasClass("streamer")) {
+        initialScale = 1.1;
+
+        console.log("streamer mode");
+        window.streamer = true;
+        
+       
         /*
         function setSpeech() {
             return new Promise(

@@ -23,13 +23,20 @@ python app.py -s #this will use the first image found's size as canvas size (for
 python app.py -ssl #this will run the server in SSL mode (use certbot or similiar to create a SSL first and place key and cer as key.pem and cert.pem in root)
 ```
 
+for local development run:
+```
+bash run_dev.sh
+```
+
 ## Initial canvas image
 Use an image that is max 8000 x 8000 px to avoid browser compatibility.
 The filename of the canvas image should be the first alfabetical filename so use something like:
 **00yourfile_0_0.jpg** the last 2 zeros represent the coordinates of the image as all the images will be using the same system for coordinate placement
 
 ## Implemented Feautures
-add ?mode=streamer to your browser to enable auto zooming on prompting action and ghost mode (no prompter box active)
+add ?mode=follower to your browser to enable auto zooming on prompting action and ghost mode (no prompter box active)
+add ?mode=streamer to add the same ghost mode but only text to speech on each prompt (chrome recomended)
+You can combine both with ?mode=follower%20streamer
 
 ## Bugs / improvements
 - Sometimes images never get back to frontend
