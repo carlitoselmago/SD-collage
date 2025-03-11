@@ -1,3 +1,5 @@
+import os
+os.environ['EVENTLET_NO_GREENDNS'] = 'yes'
 from flask import Flask, render_template,session,request,send_from_directory
 from flask import Flask, request, render_template, redirect, url_for, flash, session
 from flask_socketio import SocketIO,emit, join_room, leave_room
