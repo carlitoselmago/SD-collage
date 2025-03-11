@@ -239,6 +239,7 @@ def prompt(message):
 def text(message):
     sid=request.sid
     #move={"sid":sid,"box":message}
+    print(message)
     users[sid]["box"]=message["box"]
     users[sid]["prompt"]=message["prompt"]
     usersExceptMe()
@@ -311,4 +312,4 @@ if __name__ == '__main__':
     if args.runinssl:
         socketio.run(app,debug=False,host="0.0.0.0",keyfile='key.pem', certfile='cert.pem')
     else:
-        socketio.run(app,debug=False,host="0.0.0.0")
+        socketio.run(app,debug=True,host="0.0.0.0")
