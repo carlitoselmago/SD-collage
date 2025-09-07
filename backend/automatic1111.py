@@ -14,6 +14,7 @@ import threading
 import cv2
 
 class imageGenerator():
+    """
     #normal 2.1 model
     negative_prompt="(text), letters, watermark"
     preprompt=""
@@ -25,7 +26,7 @@ class imageGenerator():
     image_cfg_scale=7
     preprompt="<lora:pytorch_lora_weights:1> "
     negative_prompt="text, watermark"
-
+    """
     #turbo model
     steps=4
     image_cfg_scale=1
