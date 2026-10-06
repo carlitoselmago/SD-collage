@@ -241,7 +241,7 @@ def health():
 
 
 class StripPrefix:
-    """ASGI wrapper: /prompt/foo -> /foo, anything else is passed through untouched."""
+    """ASGI wrapper: /prompt/foo and /prompt//foo -> /foo, anything else is passed through untouched."""
 
     def __init__(self, inner, prefix):
         self.inner = inner
@@ -250,9 +250,10 @@ class StripPrefix:
     async def __call__(self, scope, receive, send):
         path = scope.get("path", "")
         if scope["type"] in ("http", "websocket") and (path == self.prefix or path.startswith(self.prefix + "/")):
-            scope = dict(scope, path=path[len(self.prefix):] or "/")
+            # clients often join "<url>/" + "/path", so also collapse leading slashes
+            scope = dict(scope, path="/" + path[len(self.prefix):].lstrip("/"))
             if "raw_path" in scope:
-                scope["raw_path"] = scope["raw_path"][len(self.prefix):] or b"/"
+                scope["raw_path"] = b"/" + scope["raw_path"][len(self.prefix):].lstrip(b"/")
         await self.inner(scope, receive, send)
 
 

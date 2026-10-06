@@ -37,7 +37,7 @@ class imageGenerator():
         self.session = Session()
         if not url:
             url="http://127.0.0.1:7860"
-        self.url=url
+        self.url=url.rstrip("/")
         self.savefolder=savefolder
         self.STATIC_MASK = Image.open("mask.png")
         self.bgimage=bgimage

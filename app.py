@@ -297,7 +297,7 @@ def updateImages():
     emit('newimage', images,broadcast=True )
 
 def isUp(url,socketio,sid):
-    url+="/docs"
+    url=url.rstrip("/")+"/docs"
     print(url)
     status=False
     try:
