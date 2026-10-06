@@ -1,0 +1,12 @@
+# Requirements for the headless sd-turbo image generator (backend/server.py)
+# CUDA build of torch (on Windows PyPI only ships the CPU one)
+--extra-index-url https://download.pytorch.org/whl/cu126
+torch
+diffusers
+transformers
+accelerate
+safetensors
+fastapi
+uvicorn
+numpy
+Pillow

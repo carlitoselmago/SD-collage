@@ -4,12 +4,14 @@
 
 
 ## Stable diffusion backend
-Using https://github.com/AUTOMATIC1111/stable-diffusion-webui
-
-run sd api before starting collage server (automatic1111)
+A minimal headless API (A1111-compatible subset: `/sdapi/v1/txt2img` and `/sdapi/v1/img2img`) using
+https://huggingface.co/stabilityai/sd-turbo (downloaded automatically on first run).
+Run it on the machine with the GPU (creates its own venv, installs `backend/requirements.txt`):
 ```
-bash webui.sh --nowebui --port 7860 --listen --xformers
+backend/runserver.bat      (windows)
+bash backend/runserver.sh  (linux)
 ```
+It listens on port 7863 and also answers under the `/prompt` prefix (`http://host:7863/prompt/sdapi/v1/...`), so a reverse proxy can serve it at `https://domain/prompt/` with no extra software.
 
 (process is running as a service)
 

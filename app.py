@@ -230,7 +230,7 @@ def prompt(message):
         images.append(newimage)
 
     #print("generated image status",status)
-    del users[sid]["prompt"]
+    users.get(sid,{}).pop("prompt",None)
     emit("promptready",{"sid":sid,"status":status},room=sid)
     updateImages()
 
@@ -240,6 +240,9 @@ def text(message):
     sid=request.sid
     #move={"sid":sid,"box":message}
     print(message)
+    if sid not in users:
+        # not joined (anymore): collage was reset, user is a ghost or already disconnected
+        return
     users[sid]["box"]=message["box"]
     users[sid]["prompt"]=message["prompt"]
     usersExceptMe()
