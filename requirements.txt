@@ -8,3 +8,4 @@ gevent
 eventlet
 Pillow
 moviepy
+opencv-python-headless
